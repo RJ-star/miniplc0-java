@@ -83,7 +83,7 @@ public class StringIter {
      */
     public Pos previousPos() {
         if (ptr.row == 0 && ptr.col == 0) {
-            throw new Error("previous position from beginning");
+//            throw new Error("previous position from beginning");
         }
         if (ptr.col == 0) {
             return new Pos(ptr.row - 1, linesBuffer.get(ptr.row - 1).length() - 1);

@@ -121,7 +121,7 @@ public final class Analyser {
     }
 
     /**
-     * 添加一个符号
+     * 往符号表里添加一个符号
      * 
      * @param name          名字
      * @param isInitialized 是否已赋值
@@ -203,10 +203,11 @@ public final class Analyser {
     }
 
     private void analyseMain() throws CompileError {
-//        throw new Error("Not implemented");
+        //TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseConstantDeclaration() throws CompileError {
+    private void analyseConstantDeclaration() throws CompileError {//TODO
         // 示例函数，示例如何解析常量声明
         // 如果下一个 token 是 const 就继续
         while (nextIf(TokenType.Const) != null) {
@@ -224,28 +225,28 @@ public final class Analyser {
         }
     }
 
-    private void analyseVariableDeclaration() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseVariableDeclaration() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseStatementSequence() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseStatementSequence() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseStatement() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseStatement() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseConstantExpression() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseConstantExpression() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseExpression() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseExpression() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
-    private void analyseAssignmentStatement() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseAssignmentStatement() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
     private void analyseOutputStatement() throws CompileError {
@@ -257,8 +258,8 @@ public final class Analyser {
         instructions.add(new Instruction(Operation.WRT));
     }
 
-    private void analyseItem() throws CompileError {
-//        throw new Error("Not implemented");
+    private void analyseItem() throws CompileError {//TODO
+        //throw new Error("Not implemented");
     }
 
     private void analyseFactor() throws CompileError {
@@ -286,6 +287,6 @@ public final class Analyser {
         if (negate) {
             instructions.add(new Instruction(Operation.SUB));
         }
-//        throw new Error("Not implemented");
+        //throw new Error("Not implemented");
     }
 }
