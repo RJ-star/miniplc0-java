@@ -40,7 +40,7 @@ public final class Analyser {
 
     /**
      * 查看下一个 Token
-     * 
+     *
      * @return
      * @throws TokenizeError
      */
@@ -53,7 +53,7 @@ public final class Analyser {
 
     /**
      * 获取下一个 Token
-     * 
+     *
      * @return
      * @throws TokenizeError
      */
@@ -69,7 +69,7 @@ public final class Analyser {
 
     /**
      * 如果下一个 token 的类型是 tt，则返回 true
-     * 
+     *
      * @param tt
      * @return
      * @throws TokenizeError
@@ -81,7 +81,7 @@ public final class Analyser {
 
     /**
      * 如果下一个 token 的类型是 tt，则前进一个 token 并返回这个 token
-     * 
+     *
      * @param tt 类型
      * @return 如果匹配则返回这个 token，否则返回 null
      * @throws TokenizeError
@@ -97,7 +97,7 @@ public final class Analyser {
 
     /**
      * 如果下一个 token 的类型是 tt，则前进一个 token 并返回，否则抛出异常
-     * 
+     *
      * @param tt 类型
      * @return 这个 token
      * @throws CompileError 如果类型不匹配
@@ -113,7 +113,7 @@ public final class Analyser {
 
     /**
      * 获取下一个变量的栈偏移
-     * 
+     *
      * @return
      */
     private int getNextVariableOffset() {
@@ -121,8 +121,8 @@ public final class Analyser {
     }
 
     /**
-     * 往符号表里添加一个符号
-     * 
+     * 添加一个符号
+     *
      * @param name          名字
      * @param isInitialized 是否已赋值
      * @param isConstant    是否是常量
@@ -139,7 +139,7 @@ public final class Analyser {
 
     /**
      * 设置符号为已赋值
-     * 
+     *
      * @param name   符号名称
      * @param curPos 当前位置（报错用）
      * @throws AnalyzeError 如果未定义则抛异常
@@ -155,7 +155,7 @@ public final class Analyser {
 
     /**
      * 获取变量在栈上的偏移
-     * 
+     *
      * @param name   符号名
      * @param curPos 当前位置（报错用）
      * @return 栈偏移
@@ -172,7 +172,7 @@ public final class Analyser {
 
     /**
      * 获取变量是否是常量
-     * 
+     *
      * @param name   符号名
      * @param curPos 当前位置（报错用）
      * @return 是否为常量
@@ -203,11 +203,10 @@ public final class Analyser {
     }
 
     private void analyseMain() throws CompileError {
-        //TODO
-        //throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
-    private void analyseConstantDeclaration() throws CompileError {//TODO
+    private void analyseConstantDeclaration() throws CompileError {
         // 示例函数，示例如何解析常量声明
         // 如果下一个 token 是 const 就继续
         while (nextIf(TokenType.Const) != null) {
@@ -225,28 +224,28 @@ public final class Analyser {
         }
     }
 
-    private void analyseVariableDeclaration() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseVariableDeclaration() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
-    private void analyseStatementSequence() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseStatementSequence() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
-    private void analyseStatement() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseStatement() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
-    private void analyseConstantExpression() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseConstantExpression() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
-    private void analyseExpression() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseExpression() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
-    private void analyseAssignmentStatement() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseAssignmentStatement() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
     private void analyseOutputStatement() throws CompileError {
@@ -258,8 +257,8 @@ public final class Analyser {
         instructions.add(new Instruction(Operation.WRT));
     }
 
-    private void analyseItem() throws CompileError {//TODO
-        //throw new Error("Not implemented");
+    private void analyseItem() throws CompileError {
+//        throw new Error("Not implemented");
     }
 
     private void analyseFactor() throws CompileError {
@@ -287,6 +286,6 @@ public final class Analyser {
         if (negate) {
             instructions.add(new Instruction(Operation.SUB));
         }
-        //throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 }
