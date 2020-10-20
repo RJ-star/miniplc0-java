@@ -203,7 +203,7 @@ public final class Analyser {
     }
 
     private void analyseMain() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseConstantDeclaration() throws CompileError {
@@ -225,27 +225,27 @@ public final class Analyser {
     }
 
     private void analyseVariableDeclaration() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseStatementSequence() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseStatement() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseConstantExpression() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseExpression() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseAssignmentStatement() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseOutputStatement() throws CompileError {
@@ -258,7 +258,7 @@ public final class Analyser {
     }
 
     private void analyseItem() throws CompileError {
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 
     private void analyseFactor() throws CompileError {
@@ -286,6 +286,6 @@ public final class Analyser {
         if (negate) {
             instructions.add(new Instruction(Operation.SUB));
         }
-        throw new Error("Not implemented");
+//        throw new Error("Not implemented");
     }
 }
