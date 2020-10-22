@@ -204,6 +204,20 @@ public final class Analyser {
 
     private void analyseMain() throws CompileError {
 //        throw new Error("Not implemented");
+//        while (!check(TokenType.End)) {
+//            if (check(TokenType.Const)) {
+//                analyseConstantDeclaration();
+//            } else if (check(TokenType.Var)) {
+//                analyseVariableDeclaration();
+//            } else if (check(TokenType.Ident)) {
+//                analyseStatementSequence();
+//            } else {
+//                //throw new Error("Not implemented");
+//                break;
+//            }
+//        }
+        analyseConstantDeclaration();
+        analyseVariableDeclaration();
         analyseStatementSequence();
     }
 
@@ -222,6 +236,7 @@ public final class Analyser {
 
             // 分号
             expect(TokenType.Semicolon);
+            addSymbol(nameToken.getValueString(),true,true,nameToken.getStartPos());
         }
     }
 
@@ -229,10 +244,13 @@ public final class Analyser {
 //        throw new Error("Not implemented");
         while (nextIf(TokenType.Var) != null) {
             var nameToken = expect(TokenType.Ident);
-            expect(TokenType.Equal);
+            addSymbol(nameToken.getValueString(),false,false,nameToken.getStartPos());
             if (check(TokenType.Equal)) {
                 next();
                 analyseExpression();
+                declareSymbol(nameToken.getValueString(),nameToken.getStartPos());
+            } else {
+                instructions.add(new Instruction(Operation.LIT,0));
             }
             expect(TokenType.Semicolon);
         }
@@ -266,6 +284,7 @@ public final class Analyser {
             negate = false;
         }
         instructions.add(new Instruction(Operation.LIT,Integer.parseInt(next().getValueString())));
+
         if (negate) {
             instructions.add(new Instruction(Operation.SUB));
         }
@@ -276,13 +295,15 @@ public final class Analyser {
         analyseItem();
         while (check(TokenType.Plus) || check(TokenType.Minus)) {
             if (nextIf(TokenType.Plus) != null) {
-                var nameToken = next();
-                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.ADD,pos));
+                analyseItem();
+//                var nameToken = next();
+//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
+                instructions.add(new Instruction(Operation.ADD));
             } else {
-                var nameToken = next();
-                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.SUB,pos));
+                analyseItem();
+//                var nameToken = next();
+//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
+                instructions.add(new Instruction(Operation.SUB));
             }
             analyseItem();
         }
@@ -310,13 +331,15 @@ public final class Analyser {
         analyseFactor();
         while (check(TokenType.Mult) || check(TokenType.Div)) {
             if (nextIf(TokenType.Mult) != null) {
-                var nameToken = next();
-                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.MUL,pos));
+                analyseFactor();
+//                var nameToken = next();
+//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
+                instructions.add(new Instruction(Operation.MUL));
             } else {
-                var nameToken = next();
-                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.DIV,pos));
+                analyseFactor();
+//                var nameToken = next();
+//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
+                instructions.add(new Instruction(Operation.DIV));
             }
             analyseFactor();
         }
@@ -343,7 +366,7 @@ public final class Analyser {
             instructions.add(new Instruction(Operation.LIT,Integer.parseInt(next().getValueString())));
         } else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
-            next();
+            expect(TokenType.LParen);
             analyseExpression();
             expect(TokenType.RParen);
         } else {
