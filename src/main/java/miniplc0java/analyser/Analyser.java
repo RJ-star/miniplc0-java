@@ -212,7 +212,6 @@ public final class Analyser {
 //            } else if (check(TokenType.Ident)) {
 //                analyseStatementSequence();
 //            } else {
-//                //throw new Error("Not implemented");
 //                break;
 //            }
 //        }
@@ -300,6 +299,7 @@ public final class Analyser {
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
                 instructions.add(new Instruction(Operation.ADD));
             } else {
+                next();
                 analyseItem();
 //                var nameToken = next();
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
@@ -315,6 +315,7 @@ public final class Analyser {
         expect(TokenType.Equal);
         analyseExpression();
         expect(TokenType.Semicolon);
+        instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(), nameToken.getStartPos())));
     }
 
     private void analyseOutputStatement() throws CompileError {//输出语句
