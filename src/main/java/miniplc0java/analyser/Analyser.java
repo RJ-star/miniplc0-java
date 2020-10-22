@@ -257,7 +257,9 @@ public final class Analyser {
 
     private void analyseStatementSequence() throws CompileError {//语句序列
 //        throw new Error("Not implemented");
-        analyseStatement();
+        while (check(TokenType.Ident) || check(TokenType.Print) || check(TokenType.Semicolon)) {
+            analyseStatement();
+        }
     }
 
     private void analyseStatement() throws CompileError {//语句
@@ -305,7 +307,7 @@ public final class Analyser {
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
                 instructions.add(new Instruction(Operation.SUB));
             }
-            analyseItem();
+//            analyseItem();
         }
     }
 
@@ -342,7 +344,7 @@ public final class Analyser {
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
                 instructions.add(new Instruction(Operation.DIV));
             }
-            analyseFactor();
+//            analyseFactor();
         }
     }
 
