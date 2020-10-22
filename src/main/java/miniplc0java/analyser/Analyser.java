@@ -339,6 +339,7 @@ public final class Analyser {
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
                 instructions.add(new Instruction(Operation.MUL));
             } else {
+                next();
                 analyseFactor();
 //                var nameToken = next();
 //                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
