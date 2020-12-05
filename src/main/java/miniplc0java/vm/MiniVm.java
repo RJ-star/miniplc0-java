@@ -65,12 +65,12 @@ public class MiniVm {
                 throw new Error("Illegal instruction");
             }
             case LIT: {
-                push(inst.getX());
+//                push(inst.getX());
             }
                 break;
             case LOD: {
-                var x = stack.get(inst.getX());
-                push(x);
+//                var x = stack.get(inst.getX());
+//                push(x);
             }
                 break;
             case MUL: {
@@ -80,8 +80,8 @@ public class MiniVm {
             }
                 break;
             case STO: {
-                var x = pop();
-                stack.set(inst.getX(), x);
+//                var x = pop();
+//                stack.set(inst.getX(), x);
             }
                 break;
             case SUB: {

@@ -1,16 +1,26 @@
 package miniplc0java.analyser;
 
 public class SymbolEntry {
+    String type;
     boolean isConstant;
     boolean isInitialized;
     int stackOffset;
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     /**
      * @param isConstant
      * @param isDeclared
      * @param stackOffset
      */
-    public SymbolEntry(boolean isConstant, boolean isDeclared, int stackOffset) {
+    public SymbolEntry(String type, boolean isConstant, boolean isDeclared, int stackOffset) {
+        this.type = type;
         this.isConstant = isConstant;
         this.isInitialized = isDeclared;
         this.stackOffset = stackOffset;

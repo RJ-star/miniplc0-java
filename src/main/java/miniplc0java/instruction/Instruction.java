@@ -4,14 +4,14 @@ import java.util.Objects;
 
 public class Instruction {
     private Operation opt;
-    Integer x;
+    long x;
 
     public Instruction(Operation opt) {
         this.opt = opt;
         this.x = 0;
     }
 
-    public Instruction(Operation opt, Integer x) {
+    public Instruction(Operation opt, long x) {
         this.opt = opt;
         this.x = x;
     }
@@ -44,7 +44,7 @@ public class Instruction {
         this.opt = opt;
     }
 
-    public Integer getX() {
+    public long getX() {
         return x;
     }
 
@@ -66,6 +66,7 @@ public class Instruction {
             case LOD:
             case STO:
                 return String.format("%s %s", this.opt, this.x);
+            case STORE_64:
             default:
                 return "ILL";
         }

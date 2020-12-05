@@ -1,0 +1,4 @@
+Line: 0 Column: 0 Type: Ident Value: a
+Line: 0 Column: 2 Type: Assign Value: =
+Line: 0 Column: 2 Type: Str Value: adasd
+adasd33

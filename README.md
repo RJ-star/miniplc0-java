@@ -1,2 +1,3 @@
 # miniplc0-java
-最终提交
+
+这里是 miniplc0 实验的 Java 版本。
