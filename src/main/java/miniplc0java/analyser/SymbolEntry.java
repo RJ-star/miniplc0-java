@@ -6,6 +6,7 @@ public class SymbolEntry {
     boolean isConstant;
     boolean isInitialized;
     int stackOffset;
+    int level;
 
     public String getName() {
         return name;
@@ -19,6 +20,14 @@ public class SymbolEntry {
         return type;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -28,12 +37,13 @@ public class SymbolEntry {
      * @param isInitialized
      * @param stackOffset
      */
-    public SymbolEntry(String name, String type, boolean isConstant, boolean isInitialized, int stackOffset) {
+    public SymbolEntry(String name, String type, boolean isConstant, boolean isInitialized, int stackOffset, int level) {
         this.name = name;
         this.type = type;
         this.isConstant = isConstant;
         this.isInitialized = isInitialized;
         this.stackOffset = stackOffset;
+        this.level = level;
     }
 
     /**

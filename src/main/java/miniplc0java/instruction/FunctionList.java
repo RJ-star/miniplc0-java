@@ -22,6 +22,7 @@ public class FunctionList {
     public String type;
     public boolean isReturned;
     public int paramsSum = 0;
+    public int localSum = 0;
     public ArrayList<FunctionParams> paramsList = new ArrayList<>();
     public ArrayList<Instruction> instructionsList = new ArrayList<>();
 
@@ -53,6 +54,14 @@ public class FunctionList {
         this.instructionsList = instructionsList;
     }
 
+    public FunctionList(String name) {
+        this.name = name;
+    }
+
+    public int getNextLocalOffset() {
+        return this.localSum-1;
+    }
+
     public void addParam(String name, String type, boolean isConstant, Pos curPos) throws AnalyzeError {
         for (int i=0; i<paramsList.size(); i++) {
             if (paramsList.get(i).getName().equals(name)) {
@@ -70,8 +79,6 @@ public class FunctionList {
             }
         }
     }
-
-
 
     public void setIsReturned(String type, Pos curPos) throws AnalyzeError{
         if(!type.equals(this.type)){
@@ -103,6 +110,14 @@ public class FunctionList {
         return type;
     }
 
+    public int getLocalSum() {
+        return localSum;
+    }
+
+    public void setLocalSum(int localSum) {
+        this.localSum = localSum;
+    }
+
     public boolean isReturned() {
         return isReturned;
     }
@@ -119,12 +134,15 @@ public class FunctionList {
         return instructionsList;
     }
 
+    public void addInstruction(Instruction instruction) {
+        instructionsList.add(instruction);
+    }
+
     public int getOffset(String name) {
         for (int i=0; i<paramsList.size(); i++) {
             if (paramsList.get(i).getName().equals(name)) {
                 return i;
             }
-
         }
         return -1;
     }
