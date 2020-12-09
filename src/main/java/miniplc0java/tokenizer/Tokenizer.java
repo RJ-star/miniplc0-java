@@ -203,6 +203,9 @@ public class Tokenizer {
         else if (a.equals("return")) {
             return new Token(TokenType.RETURN_KW,"return",flag,it.currentPos());
         }
+        else if (a.equals("int") || a.equals("double")) {
+            return new Token(TokenType.Ty, a, flag, it.currentPos());
+        }
         else {
             return new Token(TokenType.IDENT,a,flag,it.currentPos());
         }

@@ -49,55 +49,36 @@ public class MiniVm {
 
     private void RunStep(Instruction inst) {
         switch (inst.getOpt()) {
-            case ADD: {
-                var a = pop();
-                var b = pop();
-                push(a + b);
-            }
-                break;
-            case DIV: {
-                var b = pop();
-                var a = pop();
-                push(a / b);
-            }
-                break;
-            case ILL: {
-                throw new Error("Illegal instruction");
-            }
-            case LIT: {
-//                push(inst.getX());
-            }
-                break;
-            case LOD: {
-//                var x = stack.get(inst.getX());
-//                push(x);
-            }
-                break;
-            case MUL: {
-                var b = pop();
-                var a = pop();
-                push(a * b);
-            }
-                break;
-            case STO: {
-//                var x = pop();
-//                stack.set(inst.getX(), x);
-            }
-                break;
-            case SUB: {
-                var b = pop();
-                var a = pop();
-                push(a - b);
-            }
-                break;
-            case WRT: {
-                var b = pop();
-                out.printf("%d\n", b);
-            }
-                break;
+            case PUSH:
+            case POP:
+            case LOCA:
+            case GLOBA:
+            case LOAD_64:
+            case STORE_64:
+            case ALLOC:
+            case STACKALLOC:
+            case ADD_I:
+            case SUB_I:
+            case MUL_I:
+            case DIV_I:
+            case CMP_I:
+            case NEG_I:
+            case SET_LT:
+            case SET_GT:
+            case NOT:
+            case BR:
+            case BR_TRUE:
+            case BR_FALSE:
+            case CALL:
+            case CALLNAME:
+            case SCAN_C:
+            case SCAN_I:
+            case PRINT_I:
+            case PRINT_C:
+            case PRINT_S:
+            case PRINTLN:
             default:
                 break;
-
         }
     }
 }

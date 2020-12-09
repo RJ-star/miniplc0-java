@@ -1,4 +1,25 @@
-Line: 0 Column: 0 Type: Ident Value: a
-Line: 0 Column: 2 Type: Assign Value: =
-Line: 0 Column: 2 Type: Str Value: adasd
-adasd33
+GLOBA 0
+PUSH 11
+NEG_I
+STORE_64
+LOAD_64 0
+PUSH 1
+SET_GT
+BR_TRUE 1
+PUSH 2
+STORE_64
+BR 0
+LOAD_64 0
+PUSH 2
+SET_GT
+BR 0
+PUSH 3
+STORE_64
+BR 0
+LOAD_64 0
+PUSH 3
+SET_GT
+BR 0
+PUSH 7
+STORE_64
+BR 0

@@ -78,6 +78,8 @@ public enum TokenType {
 
     Str,
 
+    Ty,
+
     /** Print */
     Print,
     /** 加号 */
@@ -141,7 +143,7 @@ public enum TokenType {
             case GE:
                 return "Ge";
             case Str:
-                return "Str";
+                return "String";
             case Char:
                 return "Char";
             case Double:
@@ -168,8 +170,6 @@ public enum TokenType {
                 return "NullToken";
             case Begin:
                 return "Begin";
-            case Const:
-                return "Const";
             case Div:
                 return "DivisionSign";
             case EOF:
@@ -196,6 +196,8 @@ public enum TokenType {
                 return "Semicolon";
             case Uint:
                 return "UnsignedInteger";
+            case Ty:
+                return "Ty";
             case Var:
                 return "Var";
             default:
