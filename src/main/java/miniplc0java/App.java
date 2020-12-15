@@ -40,7 +40,7 @@ public class App {
         }
 
         var inputFileName = result.getString("input");
-        var outputFileName = result.getString("output");
+        var outputFileName = result.getString("asm");
 
         InputStream input;
         if (inputFileName.equals("-")) {
