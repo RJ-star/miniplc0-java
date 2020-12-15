@@ -32,7 +32,7 @@ public final class Analyser {
 
     public Analyser(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
-        this.instructions = new ArrayList<>();
+//        this.instructions = new ArrayList<>();
     }
 
     public Intermediate analyse() throws CompileError {
@@ -462,6 +462,7 @@ public final class Analyser {
                 throw new ExpectedTokenError(List.of(TokenType.IDENT, TokenType.Uint, TokenType.L_PAREN), next());
             }
         }
+        expect(TokenType.R_PAREN);
         expect(TokenType.ARROW);
         Token return_type = expect(TokenType.Ty);
         list.setType(return_type.getValueString());
