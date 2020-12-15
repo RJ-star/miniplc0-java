@@ -35,9 +35,9 @@ public final class Analyser {
         this.instructions = new ArrayList<>();
     }
 
-    public List<Instruction> analyse() throws CompileError {
+    public Intermediate analyse() throws CompileError {
         analyseProgram();
-        return instructions;
+        return intermediate;
     }
 
     /**
