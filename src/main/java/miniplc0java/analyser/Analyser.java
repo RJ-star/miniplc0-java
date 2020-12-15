@@ -465,9 +465,9 @@ public final class Analyser {
         expect(TokenType.ARROW);
         Token return_type = expect(TokenType.Ty);
         list.setType(return_type.getValueString());
-        analyseBlockStatement(list, 0);//TODO
+        analyseBlockStatement(list, 0);
         list.addInstruction(new Instruction(Operation.RET));
-        //TODO
+        list.setIsReturned("void", temp.getStartPos());
     }
 
     private void analyseParam(FunctionList list) throws CompileError {
