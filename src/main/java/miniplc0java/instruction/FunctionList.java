@@ -147,6 +147,10 @@ public class FunctionList {
         return -1;
     }
 
+    public int getFnNumber(){
+        return Intermediate.getIntermediate().getFnNumber(this.name);
+    }
+
 //    public boolean checkReturnRoutes(){
 //        if(this.getType().equals("void")){
 //            if(!this.instructionsList.get(this.instructionsList.size()-1).getOpt().equals(Operation.RET)){

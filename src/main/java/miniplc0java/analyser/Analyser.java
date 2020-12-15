@@ -25,7 +25,7 @@ public final class Analyser {
     /** 符号表 */
     HashMap<String, SymbolEntry> symbolTable = new HashMap<>();
 
-    HashMap<String, Function> functionTable = new HashMap<>();
+//    HashMap<String, Function> functionTable = new HashMap<>();
 
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
@@ -167,14 +167,14 @@ public final class Analyser {
         }
     }
 
-    private void addFunc(String name,Pos curPos, String n1, String type, ArrayList<Token> list, int begin, int end) throws AnalyzeError {
-        if (this.functionTable.get(name) != null) {
-            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
-        }
-        else {
-            this.functionTable.put(name, new Function(name, type, list, begin, end));
-        }
-    }
+//    private void addFunc(String name,Pos curPos, String n1, String type, ArrayList<Token> list, int begin, int end) throws AnalyzeError {
+//        if (this.functionTable.get(name) != null) {
+//            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
+//        }
+//        else {
+//            this.functionTable.put(name, new Function(name, type, list, begin, end));
+//        }
+//    }
 
     private void pop(int level) {
         localTable.removeIf(s->s.getLevel()==level);
@@ -285,8 +285,8 @@ public final class Analyser {
         }
     }
 
-    private void analyseAssignStatement() throws CompileError {
-        analyseAssign();
+    private void analyseAssignStatement(FunctionList list, int level) throws CompileError {
+        analyseAssign(list, level);
         expect(TokenType.SEMICOLON);
     }
 
@@ -302,7 +302,7 @@ public final class Analyser {
             intermediate.addGlobalVar(new GlobalSymbol(token.getValueString(), false));
             offset = getLevelOffset(level);
         } else {
-            if (level == 1) {
+            if (level == 1) {//传进来的参数不能在第一层再次定义
                 list.InParamsList(name, token.getStartPos());
             }
             list.localSum++;
@@ -364,34 +364,34 @@ public final class Analyser {
 
     private void analyseIfStatement(FunctionList list, int level) throws CompileError {//TODO
         expect(TokenType.IF_KW);
-        ArrayList<Integer> point = new ArrayList<>();//需要跳转的点
-        ArrayList<Integer> zipper = new ArrayList<>();//跳转点
-        ArrayList<Integer> end = new ArrayList<>();
-        analyseAssign();
-        point.add(instructions.size());
-        instructions.add(new Instruction(Operation.BR_TRUE,1));//占坑
-        analyseBlockStatement(list, level);
-        end.add(instructions.size());
-        instructions.add(new Instruction(Operation.BR));//占坑
-        while (check(TokenType.ELSE_KW)) {
-            next();
-            if (check(TokenType.IF_KW)) {
-                next();
-                zipper.add(instructions.size());
-                analyseAssign();
-                point.add(instructions.size());
-                instructions.add(new Instruction(Operation.BR));//占坑
-                analyseBlockStatement(list, level);
-                end.add(instructions.size());
-                instructions.add(new Instruction(Operation.BR));
-            } else {
-                zipper.add(instructions.size());
-                analyseBlockStatement(list, level);
-                if (check(TokenType.ELSE_KW)) {
-                    throw new ExpectedTokenError(List.of(TokenType.IF_KW), next());
-                }
-            }
-        }
+//        ArrayList<Integer> point = new ArrayList<>();//需要跳转的点
+//        ArrayList<Integer> zipper = new ArrayList<>();//跳转点
+//        ArrayList<Integer> end = new ArrayList<>();
+//        analyseAssign();
+//        point.add(instructions.size());
+//        instructions.add(new Instruction(Operation.BR_TRUE,1));//占坑
+//        analyseBlockStatement(list, level);
+//        end.add(instructions.size());
+//        instructions.add(new Instruction(Operation.BR));//占坑
+//        while (check(TokenType.ELSE_KW)) {
+//            next();
+//            if (check(TokenType.IF_KW)) {
+//                next();
+//                zipper.add(instructions.size());
+//                analyseAssign();
+//                point.add(instructions.size());
+//                instructions.add(new Instruction(Operation.BR));//占坑
+//                analyseBlockStatement(list, level);
+//                end.add(instructions.size());
+//                instructions.add(new Instruction(Operation.BR));
+//            } else {
+//                zipper.add(instructions.size());
+//                analyseBlockStatement(list, level);
+//                if (check(TokenType.ELSE_KW)) {
+//                    throw new ExpectedTokenError(List.of(TokenType.IF_KW), next());
+//                }
+//            }
+//        }
 //        int flag = instructions.size();
 //        for (int i=0; i<point.size(); i++) {
 //            instructions.set(point.get(i), new Instruction(Operation.JMP, zipper.get(i)));
@@ -403,21 +403,30 @@ public final class Analyser {
 
     private void analyseWhileStatement(FunctionList list, int level) throws CompileError {
         expect(TokenType.WHILE_KW);
-        int start=list.getInstructionsList().size();
+        int begin = list.getInstructionsList().size();
         list.addInstruction(new Instruction(Operation.BR, 0));
-        analyseAssign();
-        list.addInstruction(new Instruction(Operation.BR_TRUE, 1));//成功则跳转
-        int zip=list.getInstructionsList().size();
-        list.addInstruction(new Instruction(Operation.BR));//失败跳转,填坑
+        analyseAssign(list, level);
+        list.addInstruction(new Instruction(Operation.BR_TRUE, 1));
+        int add=list.getInstructionsList().size();
+        list.addInstruction(new Instruction(Operation.BR));
         analyseBlockStatement(list, level);
-        list.addInstruction(new Instruction(Operation.BR, start-list.getInstructionsList().size()));//返回开始
+        list.addInstruction(new Instruction(Operation.BR, begin-list.getInstructionsList().size()));
         int end=list.getInstructionsList().size();
-        list.instructionsList.set(zip,new Instruction(Operation.BR, end-zip-1));
+        list.getInstructionsList().set(add, new Instruction(Operation.BR, end-add-1));
     }
 
-    private void analyseReturnStatement() throws CompileError {
+    private void analyseReturnStatement(FunctionList list, int level) throws CompileError {
         expect(TokenType.RETURN_KW);
-        analyseOperator();
+        String type="void";
+        if(!check(TokenType.Semicolon)) {
+            type = "int";
+            analyseAssign(list, level);
+        }
+        if (!type.equals(list.getType())) {
+            throw new ExpectedTokenError(List.of(TokenType.Ty), next());
+        }
+        list.isReturned = true;
+        list.addInstruction(new Instruction(Operation.RET));
         expect(TokenType.SEMICOLON);
     }
 
@@ -431,7 +440,7 @@ public final class Analyser {
         expect(TokenType.R_BRACE);
     }
 
-    private void analyseEmptyStatement() throws CompileError {
+    private void analyseEmptyStatement(FunctionList list, int level) throws CompileError {
         expect(TokenType.SEMICOLON);
     }
 
@@ -473,45 +482,26 @@ public final class Analyser {
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * <程序> ::= 'begin'<主过程>'end'
      */
 
-
-
-
     private void analyseProgram() throws CompileError {
         // 示例函数，示例如何调用子程序
-        // 'begin'
+        FunctionList list = new FunctionList("_start");
         while (!check(TokenType.EOF)) {
             if (check(TokenType.FN_KW)) {
                 analyseFunction();
             } else {
-                analyseStatementSequence();
+                analyseStatement(list, 0);
             }
         }
+        Intermediate.getIntermediate().addFunction(list);
+        FunctionList temp=intermediate.getFn("main",peek().getStartPos());
+        list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
+        int begin=intermediate.getFnAddress("main");
+        list.addInstruction(new Instruction(Operation.CALL, begin, 4));
+        intermediate.addGlobalSymbol("_start", peek().getStartPos());
         expect(TokenType.EOF);
     }
 
@@ -604,68 +594,178 @@ public final class Analyser {
 //        }
 //    }
 
-    private void analyseAssign() throws CompileError {
+    private void analyseAssign(FunctionList list, int level) throws CompileError {
         Token temp = peek();
-        analyseOperator();
+        analyseOperator(list, level);
         if (check(TokenType.ASSIGN)) {
             if (temp.getTokenType() == TokenType.IDENT) {
-                instructions.remove(instructions.size()-1);
-                if (isConstant(temp.getValueString(), temp.getStartPos())) {
+                list.instructionsList.remove(list.instructionsList.size()-1);
+                if (isConstant(list, temp.getValueString(), level, temp.getStartPos())) {
                     throw new ExpectedTokenError(List.of(TokenType.IDENT, TokenType.Uint, TokenType.L_PAREN), next());
                 }
                 next();
-                analyseOperator();
-                instructions.add(new Instruction((Operation.STORE_64)));
+                analyseOperator(list, level);
+                list.instructionsList.add(new Instruction(Operation.STORE_64));
             } else {
                 throw new ExpectedTokenError(List.of(TokenType.IDENT, TokenType.Uint, TokenType.L_PAREN), next());
             }
         }
+//        expect(TokenType.SEMICOLON);
     }
 
-    private void analyseOperator() throws CompileError {//运算符表达式
-        analyseExpression();
+    private void analyseOperator(FunctionList list, int level) throws CompileError {//运算符表达式
+        analyseExpression(list, level);
         if (check(TokenType.EQ) || check(TokenType.NEQ) || check(TokenType.LT) || check(TokenType.GT) || check(TokenType.LE) || check(TokenType.GE)){
             Token temp = next();
-            analyseExpression();
+            analyseExpression(list, level);
+            list.instructionsList.add(new Instruction(Operation.CMP_I));
             if(temp.getTokenType() == TokenType.EQ){
-                instructions.add(new Instruction(Operation.NOT));
-            }
-            else if(temp.getTokenType() == TokenType.NEQ){
-//                instructions.add(new Instruction(Operation.NOT));
-            }
-            else if(temp.getTokenType() == TokenType.LT){
-                instructions.add(new Instruction(Operation.SET_LT));
-            }
-            else if(temp.getTokenType() == TokenType.GT){
-                instructions.add(new Instruction(Operation.SET_GT));
-            }
-            else if(temp.getTokenType() == TokenType.LE){
-                instructions.add(new Instruction(Operation.SET_GT));
-                instructions.add(new Instruction(Operation.NOT));
-            }
-            else if(temp.getTokenType() == TokenType.GE){
-                instructions.add(new Instruction(Operation.SET_LT));
-                instructions.add(new Instruction(Operation.NOT));
+                list.instructionsList.add(new Instruction(Operation.NOT));
+            } else if(temp.getTokenType() == TokenType.NEQ){
+            } else if(temp.getTokenType() == TokenType.LT){
+                list.instructionsList.add(new Instruction(Operation.SET_LT));
+            } else if(temp.getTokenType() == TokenType.GT){
+                list.instructionsList.add(new Instruction(Operation.SET_GT));
+            } else if(temp.getTokenType() == TokenType.LE){
+                list.instructionsList.add(new Instruction(Operation.SET_GT));
+                list.instructionsList.add(new Instruction(Operation.NOT));
+            } else if(temp.getTokenType() == TokenType.GE){
+                list.instructionsList.add(new Instruction(Operation.SET_LT));
+                list.instructionsList.add(new Instruction(Operation.NOT));
             }
         }
     }
 
-    private void analyseExpression() throws CompileError {//表达式
-//        throw new Error("Not implemented");
-        analyseItem();
+    private void analyseExpression(FunctionList list, int level) throws CompileError {//表达式
+        analyseItem(list, level);
         while (check(TokenType.PLUS) || check(TokenType.MINUS)) {
             if (nextIf(TokenType.PLUS) != null) {
-                analyseItem();
-                instructions.add(new Instruction(Operation.ADD_I));
+                analyseItem(list, level);
+                list.instructionsList.add(new Instruction(Operation.ADD_I));
             } else if (nextIf(TokenType.MINUS) != null) {
-                analyseItem();
-                instructions.add(new Instruction(Operation.SUB_I));
+                analyseItem(list, level);
+                list.instructionsList.add(new Instruction(Operation.SUB_I));
             } else
                 throw new ExpectedTokenError(List.of(TokenType.PLUS,TokenType.MINUS), next());
         }
     }
 
+    private void analyseItem(FunctionList list, int level) throws CompileError {//项
+        analyseFactor(list, level);
+        while (check(TokenType.MUL) || check(TokenType.DIV)) {
+            if (nextIf(TokenType.MUL) != null) {
+                analyseFactor(list, level);
+                list.instructionsList.add(new Instruction(Operation.MUL_I));
+            } else if (nextIf(TokenType.DIV) != null) {
+                analyseFactor(list, level);
+                list.instructionsList.add(new Instruction(Operation.DIV_I));
+            } else
+                throw new ExpectedTokenError(List.of(TokenType.MUL, TokenType.DIV), next());
+        }
+    }
 
+    private void analyseFactor(FunctionList list, int level) throws CompileError {//因子
+        boolean negate = false;
+        while (check(TokenType.MINUS)) {
+            next();
+            negate=!negate;
+        }
+        if (check(TokenType.PLUS)) {
+            next();
+            negate=false;
+        }
+
+        if (check(TokenType.IDENT)) {
+            // 调用相应的处理函数
+            Token temp = next();
+            if(check(TokenType.L_PAREN)){
+                if (FunctionList.standardFunction.get(temp.getValueString()) != null) {
+                    next();
+                    int offSet = intermediate.insertLibFunctionBefore(list.getName(), temp.getValueString());
+                    switch (temp.getValueString()){
+                        case "getdouble":
+                            list.addInstruction(new Instruction(Operation.STACKALLOC, 1, 4));
+                            break;
+                        case "getint":
+                        case "getchar":
+                            list.addInstruction(new Instruction(Operation.STACKALLOC, 1, 4));
+                            break;
+                        case "putstr":
+                            list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
+                            if (check(TokenType.RParen)) {
+                                throw new AnalyzeError(ErrorCode.ExpectedToken, temp.getStartPos());
+                            }
+                            Token t=expect(TokenType.Str);
+                            intermediate.addGlobalSymbolToLastPos(t.getValueString(), t.getStartPos());
+                            offSet=intermediate.getSymbolAddress(t.getValueString());
+                            list.addInstruction(new Instruction(Operation.PUSH, offSet, 8));
+                            offSet=intermediate.getSymbolAddress("putstr");
+                            break;
+                        case "putln":
+                            list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
+                            break;
+                        default:
+                            if (check(TokenType.RParen)) {
+                                throw new AnalyzeError(ErrorCode.ExpectedToken, temp.getStartPos());
+                            }
+                            list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
+                            if (temp.getValueString().equals("putint") || temp.getValueString().equals("putchar")) {//TODO
+                            }
+                            break;
+                    }
+                    expect(TokenType.RParen);
+                    list.addInstruction(new Instruction(Operation.CALLNAME,offSet,4));
+                } else {//TODO修改
+                    FunctionList calledFunc = intermediate.getFn(temp.getValueString(), temp.getStartPos());
+                    int flag = 0;
+                    if (calledFunc.isReturned) {
+                        flag = 1;
+                    }
+                    list.addInstruction(new Instruction(Operation.STACKALLOC, flag, 4));
+                    next();
+                    ArrayList<String> paramType = new ArrayList<>();
+                    if (check(TokenType.RParen)) {
+                        expect(TokenType.RParen);
+                    } else {
+                        paramType.add("int");
+                        while (check(TokenType.COMMA)) {
+                            next();
+                            paramType.add("int");
+                        }
+                        expect(TokenType.RParen);
+                    }
+                    list.checkParams(paramType, temp.getStartPos());
+                    list.addInstruction(new Instruction(Operation.CALL, intermediate.getFnAddress(calledFunc.getName()), 4));
+                }
+            } else {
+                if (checkLocalSymbol(temp.getValueString(), level) != null) {
+                    list.instructionsList.add(new Instruction(Operation.LOCA, checkLocalSymbol(temp.getValueString(), level).getStackOffset(), 4));
+                } else if (list.getOffset(temp.getValueString()) != -1) {
+                    list.instructionsList.add(new Instruction(Operation.ARGA, list.getOffset(temp.getValueString()), 4));
+                } else {
+                    list.instructionsList.add(new Instruction(Operation.GLOBA, useSymbol(temp.getValueString(), 0, temp.getStartPos()).getStackOffset(), 4));
+                }
+                list.instructionsList.add(new Instruction(Operation.LOAD_64));
+            }
+        } else if (check(TokenType.Uint)) {
+            // 调用相应的处理函数
+            list.instructionsList.add(new Instruction(Operation.PUSH,Long.parseLong(next().getValueString()), 8));
+        } else if (check(TokenType.Char)) {
+          list.getInstructionsList().add(new Instruction(Operation.PUSH, (int)(next().getValue()), 8));
+        } else if (check(TokenType.L_PAREN)) {
+            // 调用相应的处理函数
+            expect(TokenType.L_PAREN);
+            analyseAssign(list, level);
+            expect(TokenType.R_PAREN);
+        } else {
+            // 都不是，摸了
+            throw new ExpectedTokenError(List.of(TokenType.IDENT), next());
+        }
+
+        if (negate) {
+            list.instructionsList.add(new Instruction(Operation.NEG_I));
+        }
+    }
 
 //    private void analyseAssignmentStatement() throws CompileError {//赋值语句
 ////        throw new Error("Not implemented");
@@ -676,8 +776,8 @@ public final class Analyser {
 //        instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(), nameToken.getStartPos())));
 //    }
 
-    private void analyseAs() throws CompileError {
-        analyseFactor();
+//    private void analyseAs() throws CompileError {
+//        analyseFactor();
 //        if (check(TokenType.AS_KW)) {
 //            next();
 //            Token temp = next();
@@ -688,7 +788,7 @@ public final class Analyser {
 //            } else
 //                throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
 //        }
-    }
+//    }
 
 //    private void analyseOutputStatement() throws CompileError {//输出语句
 //        expect(TokenType.Print);
@@ -698,76 +798,4 @@ public final class Analyser {
 //        expect(TokenType.Semicolon);
 //        instructions.add(new Instruction(Operation.WRT));
 //    }
-
-    private void analyseItem() throws CompileError {//项
-//        throw new Error("Not implemented");
-        analyseAs();
-        while (check(TokenType.MUL) || check(TokenType.DIV)) {
-            if (nextIf(TokenType.MUL) != null) {
-                analyseAs();
-//                var nameToken = next();
-//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.MUL_I));
-            } else if (nextIf(TokenType.DIV) != null){
-                next();
-                analyseAs();
-//                var nameToken = next();
-//                int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.DIV_I));
-            } else
-            throw new ExpectedTokenError(List.of(TokenType.MUL, TokenType.DIV), next());
-//            analyseFactor();
-        }
-    }
-
-    private void analyseFactor() throws CompileError {//因子
-        boolean negate;
-        if (nextIf(TokenType.MINUS) != null) {
-            negate = true;
-            // 计算结果需要被 0 减
-//            instructions.add(new Instruction(Operation.SUB_I, 0));
-        } else {
-            nextIf(TokenType.PLUS);
-            negate = false;
-        }
-
-        if (check(TokenType.IDENT)) {
-            // 调用相应的处理函数
-//            var nameToken = next();
-//            int pos = getOffset(nameToken.getValueString(),nameToken.getStartPos());
-//            instructions.add(new Instruction(Operation.LOD,pos));
-            Token temp = next();
-            if(check(TokenType.L_PAREN)){
-                next();
-                instructions.add(new Instruction(Operation.STACKALLOC));
-                analyseAssign();
-                while(check(TokenType.COMMA)){
-                    next();
-                    analyseAssign();
-                }
-                expect(TokenType.R_PAREN);
-                instructions.add(new Instruction(Operation.CALL, getOffset(temp.getValueString(), temp.getStartPos())));
-            }
-            instructions.add(new Instruction(Operation.LOAD_64,getOffset(temp.getValueString(),temp.getStartPos())));
-
-        } else if (check(TokenType.Uint)) {
-            // 调用相应的处理函数
-            instructions.add(new Instruction(Operation.PUSH,Integer.parseInt(next().getValueString())));
-        } else if (check(TokenType.Double)) {
-            double x=Double.parseDouble(next().getValue().toString());
-            instructions.add(new Instruction(Operation.PUSH,new Double(x).longValue()));
-        } else if (check(TokenType.L_PAREN)) {
-            // 调用相应的处理函数
-            expect(TokenType.L_PAREN);
-            analyseAssign();
-            expect(TokenType.R_PAREN);
-        } else {
-            // 都不是，摸了
-            throw new ExpectedTokenError(List.of(TokenType.IDENT, TokenType.Uint, TokenType.L_PAREN), next());
-        }
-
-        if (negate) {
-            instructions.add(new Instruction(Operation.NEG_I));
-        }
-    }
 }

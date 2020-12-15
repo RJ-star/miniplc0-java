@@ -83,6 +83,10 @@ public class Instruction {
         return opt;
     }
 
+    public int getOptValue(){
+        return INSTRUCT.get(String.valueOf(this.opt)).intValue();
+    }
+
     public void setOpt(Operation opt) {
         this.opt = opt;
     }
@@ -97,6 +101,36 @@ public class Instruction {
 
     public void setX(Integer x) {
         this.x = x;
+    }
+
+    public void setX(long x) {
+        this.x = x;
+    }
+
+    public long getY() {
+        return y;
+    }
+
+    public void setY(long y) {
+        this.y = y;
+    }
+
+    public boolean hasX() {
+        switch (this.opt) {
+            case CALL:
+            case PUSH:
+            case GLOBA:
+            case LOCA:
+            case STACKALLOC:
+            case BR_TRUE:
+            case BR:
+            case BR_FALSE:
+            case ARGA:
+            case CALLNAME:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

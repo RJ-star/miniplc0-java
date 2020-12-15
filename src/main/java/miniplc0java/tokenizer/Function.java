@@ -32,13 +32,13 @@ public class Function {
         this.end = end;
     }
 
-    private void addSymbol(String name,String type, boolean isInitialized, boolean isConstant, Pos curPos) throws AnalyzeError {
-        if (this.symbolTable.get(name) != null) {
-            throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
-        } else {
-            this.symbolTable.put(name, new SymbolEntry(name, type, isConstant, isInitialized, getNextVariableOffset()));
-        }
-    }
+//    private void addSymbol(String name,String type, boolean isInitialized, boolean isConstant, Pos curPos) throws AnalyzeError {
+//        if (this.symbolTable.get(name) != null) {
+//            throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
+//        } else {
+//            this.symbolTable.put(name, new SymbolEntry(name, type, isConstant, isInitialized, getNextVariableOffset()));
+//        }
+//    }
 
     private void removeSymbol(String name,Pos curPos) throws AnalyzeError{//删除某个元素
         if(this.symbolTable.get(name)==null){
