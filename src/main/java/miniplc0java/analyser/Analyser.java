@@ -455,11 +455,8 @@ public final class Analyser {
             analyseParam(list);
             if(check(TokenType.COMMA)){
                 next();
-            } else if (check(TokenType.R_PAREN)) {
-                next();
-                break;
             } else {
-                throw new ExpectedTokenError(List.of(TokenType.IDENT, TokenType.Uint, TokenType.L_PAREN), next());
+                break;
             }
         }
         expect(TokenType.R_PAREN);
