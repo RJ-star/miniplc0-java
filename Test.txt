@@ -1,27 +1,22 @@
-let i: int = 2;
-
-fn foo() -> int {
-    let i: int = 1;
-    putint(i);
+fn move(level: int, a: int, c: int) -> void {
+    putint(level);
+    putchar(32);
+    putchar(a);
+    putchar(32);
+    putchar(c);
     putln();
-    return i;
 }
 
-fn bar() -> void {
-    putint(i);
-    putln();
-    i = i + 1;
+fn hanoi(level: int, a: int, b: int, c: int) -> void {
+    if level == 1 {
+        move(level, a, c);
+    } else {
+        hanoi(level-1, a, c, b);
+        move(level, a, c);
+        hanoi(level-1, b, a, c);
+    }
 }
 
 fn main() -> void {
-    let i: int = 1;
-    putint(i);
-    putln();
-    putint(foo());
-    putln();
-    bar();
-    bar();
-    bar();
-    putint(foo());
-    putln();
+    hanoi(6, 65, 66, 67);
 }

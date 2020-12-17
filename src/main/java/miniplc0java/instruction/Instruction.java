@@ -174,7 +174,7 @@ public class Instruction {
             case GLOBA:
                 return String.format("%s(%s)",this.opt,this.x);
             case LOAD_64:
-                return String.format("%s(%s)",this.opt,this.x);
+                return String.format("%s",this.opt);
             case STORE_64:
                 return String.format("%s",this.opt);
             case ALLOC:

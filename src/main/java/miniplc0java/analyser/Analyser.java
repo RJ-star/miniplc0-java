@@ -687,7 +687,7 @@ public final class Analyser {
                     if (calledFunc.isReturned) {
                         flag = 1;
                     }
-                    list.addInstruction(new Instruction(Operation.STACKALLOC, flag, 4));
+                    list.addInstruction(new Instruction(Operation.STACKALLOC, calledFunc.getReturnSlots(), 4));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();
                     if (check(TokenType.R_PAREN)) {
