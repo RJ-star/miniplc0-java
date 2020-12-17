@@ -369,15 +369,15 @@ public final class Analyser {
     private void analyseWhileStatement(FunctionList list, int level) throws CompileError {
         expect(TokenType.WHILE_KW);
         int begin = list.getInstructionsList().size();
-        list.addInstruction(new Instruction(Operation.BR, 0));
+        list.addInstruction(new Instruction(Operation.BR, 0, 4));
         analyseAssign(list, level);
-        list.addInstruction(new Instruction(Operation.BR_TRUE, 1));
+        list.addInstruction(new Instruction(Operation.BR_TRUE, 1, 4));
         int add=list.getInstructionsList().size();
-        list.addInstruction(new Instruction(Operation.BR));
+        list.addInstruction(new Instruction(Operation.BR, 0 ,4));
         analyseBlockStatement(list, level);
-        list.addInstruction(new Instruction(Operation.BR, begin-list.getInstructionsList().size()));
+        list.addInstruction(new Instruction(Operation.BR, begin-list.getInstructionsList().size(), 4));
         int end=list.getInstructionsList().size();
-        list.getInstructionsList().set(add, new Instruction(Operation.BR, end-add-1));
+        list.getInstructionsList().set(add, new Instruction(Operation.BR, end-add-1, 4));
     }
 
     private void analyseReturnStatement(FunctionList list, int level) throws CompileError {
@@ -736,36 +736,4 @@ public final class Analyser {
             list.instructionsList.add(new Instruction(Operation.NEG_I));
         }
     }
-
-//    private void analyseAssignmentStatement() throws CompileError {//赋值语句
-////        throw new Error("Not implemented");
-//        var nameToken = expect(TokenType.IDENT);
-//        expect(TokenType.ASSIGN);
-//        analyseFactor();
-//        expect(TokenType.Semicolon);
-//        instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(), nameToken.getStartPos())));
-//    }
-
-//    private void analyseAs() throws CompileError {
-//        analyseFactor();
-//        if (check(TokenType.AS_KW)) {
-//            next();
-//            Token temp = next();
-//            if (temp.getValueString().equals("int")) {
-//                instructions.add(new Instruction(Operation.ASDtI));
-//            } else if (temp.getValueString().equals("double")) {
-//                instructions.add(new Instruction(Operation.ASItD));
-//            } else
-//                throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
-//        }
-//    }
-
-//    private void analyseOutputStatement() throws CompileError {//输出语句
-//        expect(TokenType.Print);
-//        expect(TokenType.LParen);
-//        analyseExpression();
-//        expect(TokenType.RParen);
-//        expect(TokenType.Semicolon);
-//        instructions.add(new Instruction(Operation.WRT));
-//    }
 }
