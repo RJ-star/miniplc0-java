@@ -197,42 +197,6 @@ public class Tokenizer {
     }
 
     private Token lexOperatorOrUnknown() throws TokenizeError {//返回
-//        switch (it.nextChar()) {//读入下一个
-//            case '+':
-//                return new Token(TokenType.PLUS, '+', it.previousPos(), it.currentPos());
-//
-//            case '-':
-//                // 填入返回语句
-//                return new Token(TokenType.MINUS, '-', it.previousPos(), it.currentPos());
-//
-//            case '*':
-//                // 填入返回语句
-//                return new Token(TokenType.MUL, '*', it.previousPos(), it.currentPos());
-//
-//            case '/':
-//                // 填入返回语句
-//                return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
-//
-//            // 填入更多状态和返回语句
-//            case '=':
-//                return new Token(TokenType.Equal, '=', it.previousPos(), it.currentPos());
-//
-//            case ';':
-//                // 填入返回语句
-//                return new Token(TokenType.Semicolon, ';', it.previousPos(), it.currentPos());
-//
-//            case '(':
-//                // 填入返回语句
-//                return new Token(TokenType.LParen, '(', it.previousPos(), it.currentPos());
-//
-//            case ')':
-//                // 填入返回语句
-//                return new Token(TokenType.RParen, ')', it.previousPos(), it.currentPos());
-//
-//            default:
-//                // 不认识这个输入，摸了
-//                throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
-//        }
         Pos start = it.previousPos();
         if (it.peekChar() == '+') {
             it.nextChar();
@@ -258,7 +222,7 @@ public class Tokenizer {
                     it.nextChar();
                 }
                 it.nextChar();
-                return null;
+                return nextToken();
             } else {
                 it.nextChar();
                 return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
