@@ -167,6 +167,8 @@ public class Instruction {
                 return String.format("%s(%s)",this.opt,this.x);
             case POP:
                 return String.format("%s",this.opt);
+            case ARGA:
+                return String.format("%s(%s)",this.opt,this.x);
             case LOCA:
                 return String.format("%s(%s)",this.opt,this.x);
             case GLOBA:

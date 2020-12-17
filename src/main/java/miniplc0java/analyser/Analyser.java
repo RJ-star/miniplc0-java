@@ -433,9 +433,11 @@ public final class Analyser {
         }
         String type="void";
         if(!check(TokenType.SEMICOLON)) {
-            type = "int";
-            analyseAssign(list, level);
+            type = analyseAssign(list, level);
             list.addInstruction(new Instruction(Operation.STORE_64));
+        }
+        if (!list.getType().equals(type)) {
+            throw new AnalyzeError(ErrorCode.ExpectedToken, new Pos(0,0));
         }
         list.isReturned = true;
         list.addInstruction(new Instruction(Operation.RET));
@@ -461,7 +463,7 @@ public final class Analyser {
         Token temp = expect(TokenType.IDENT);
         expect(TokenType.L_PAREN);
         FunctionList list = new FunctionList(temp.getValueString());
-        intermediate.addGlobalVar(temp.getValueString(), temp.getStartPos());
+        intermediate.addGlobalSymbol(temp.getValueString(), temp.getStartPos());
         intermediate.addFunction(list);
         while (!check(TokenType.R_PAREN)){
             analyseParam(list);
@@ -474,7 +476,7 @@ public final class Analyser {
         expect(TokenType.R_PAREN);
         expect(TokenType.ARROW);
         Token return_type = expect(TokenType.Ty);
-        list.setType(return_type.getValueString());
+        list.setReturn(return_type.getValueString());
         analyseBlockStatement(list, 0);
         if(!list.isReturned()){
             list.addInstruction(new Instruction(Operation.RET));
@@ -508,12 +510,16 @@ public final class Analyser {
             if (check(TokenType.FN_KW)) {
                 analyseFunction();
             } else {
-                analyseStatement(list, 0);
+                if (check(TokenType.LET_KW)) {
+                    analyseLetStatement(list, 0);
+                } else if (check(TokenType.CONST_KW)) {
+                    analyseConstStatement(list, 0);
+                }
             }
         }
         Intermediate.getIntermediate().addFunction(list);
         FunctionList temp=intermediate.getFn("main",peek().getStartPos());
-        list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
+        list.addInstruction(new Instruction(Operation.STACKALLOC, temp.getReturnSlots(), 4));
         int begin=intermediate.getFnAddress("main");
         list.addInstruction(new Instruction(Operation.CALL, begin, 4));
         intermediate.addGlobalSymbol("_start", peek().getStartPos());
@@ -705,7 +711,12 @@ public final class Analyser {
 
                 } else if (list.getOffset(temp.getValueString()) != -1) {
                     type=list.paramsList.get(list.getOffset(temp.getValueString())).getType();
-                    list.instructionsList.add(new Instruction(Operation.ARGA, list.getOffset(temp.getValueString())+1, 4));
+                    if (list.returnSlots>0) {
+                        list.instructionsList.add(new Instruction(Operation.ARGA, list.getOffset(temp.getValueString())+1, 4));
+                    } else {
+                        list.instructionsList.add(new Instruction(Operation.ARGA, list.getOffset(temp.getValueString()), 4));
+                    }
+
 
                 } else {
                     type=useSymbol(temp.getValueString(), 0, temp.getStartPos()).type;
