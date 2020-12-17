@@ -161,24 +161,6 @@ public class Tokenizer {
         // -- 如果是关键字，则返回关键字类型的 token
         // -- 否则，返回标识符
         String a=new String(x);
-//        if(a.equals("begin")){
-//            return new Token(TokenType.Begin,"begin",flag,it.currentPos());
-//        }
-//        else if(a.equals("end")){
-//            return new Token(TokenType.End,"end",flag,it.currentPos());
-//        }
-//        else if(a.equals("var")){
-//            return new Token(TokenType.Var,"var",flag,it.currentPos());
-//        }
-//        else if(a.equals("const")){
-//            return new Token(TokenType.Const,"const",flag,it.currentPos());
-//        }
-//        else if(a.equals("print")){
-//            return new Token(TokenType.Print,"print",flag,it.currentPos());
-//        }
-//        else{
-//            return new Token(TokenType.Ident,a,flag,it.currentPos());
-//        }
         if (a.equals("fn")) {
             return new Token(TokenType.FN_KW,"fn",flag,it.currentPos());
         }

@@ -364,6 +364,53 @@ public final class Analyser {
 
     private void analyseIfStatement(FunctionList list, int level) throws CompileError {//TODO
         expect(TokenType.IF_KW);
+        analyseAssign(list, level);
+        ArrayList<Integer> add=new ArrayList<Integer>();
+        ArrayList<Integer> nextAdd=new ArrayList<Integer>();
+        ArrayList<Integer> end=new ArrayList<Integer>();
+        int end1;
+        int k1=0;
+        list.addInstruction(new Instruction(Operation.BR_TRUE,1,4));
+        add.add(list.getInstructionsList().size());//需要修改跳转地址的位置
+        list.addInstruction(new Instruction(Operation.BR,0,4));
+        analyseBlockStatement(list,level);
+        if(check(TokenType.ELSE_KW )){
+            next();
+            end.add(list.getInstructionsList().size());//跳出if else语句需要修改的跳转地址位置
+            list.addInstruction(new Instruction(Operation.BR,0,4));
+            while (check(TokenType.IF_KW)){
+                next();
+                nextAdd.add(list.getInstructionsList().size());//回填地址
+                analyseAssign(list, level);
+                list.addInstruction(new Instruction(Operation.BR_TRUE,1,4));
+                add.add(list.getInstructionsList().size());//需要修改跳转地址的位置
+                list.addInstruction(new Instruction(Operation.BR,0,4));
+                analyseBlockStatement(list, level);
+                end.add(list.getInstructionsList().size());
+                list.addInstruction(new Instruction(Operation.BR,0,4));
+                if (!check(TokenType.ELSE_KW)){
+                    k1=1;
+                    break;
+                }
+                else{
+                    next();
+                }
+            }
+            nextAdd.add(list.getInstructionsList().size());
+            if(k1==0){
+                analyseBlockStatement(list, level);
+            }
+            end1=list.getInstructionsList().size();//结束地址
+            for(int i=0;i<add.size();i++){
+                list.instructionsList.set(add.get(i),new Instruction(Operation.BR,nextAdd.get(i)-add.get(i)-1,4));
+            }
+            for(int i=0;i<end.size();i++){
+                list.instructionsList.set(end.get(i),new Instruction(Operation.BR,end1-end.get(i)-1,4));
+            }
+        }
+        else{
+            list.instructionsList.set(add.get(0),new Instruction(Operation.BR,list.getInstructionsList().size()-add.get(0)-1,4));
+        }
     }
 
     private void analyseWhileStatement(FunctionList list, int level) throws CompileError {
@@ -721,7 +768,7 @@ public final class Analyser {
             // 调用相应的处理函数
             list.instructionsList.add(new Instruction(Operation.PUSH,Long.parseLong(next().getValueString()), 8));
         } else if (check(TokenType.Char)) {
-          list.getInstructionsList().add(new Instruction(Operation.PUSH, (int)(next().getValue()), 8));
+            list.instructionsList.add(new Instruction(Operation.PUSH, (int)(next().getValue()), 8));
         } else if (check(TokenType.L_PAREN)) {
             // 调用相应的处理函数
             expect(TokenType.L_PAREN);
