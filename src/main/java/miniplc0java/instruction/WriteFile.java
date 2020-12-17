@@ -31,7 +31,7 @@ public class WriteFile {
             for(FunctionList f: midCode.fnList){
                 if(f.getName().equals("_start")) {
                     content.write(getByteValue(f.getFnNumber(), 4));
-                    content.write(getByteValue(!f.isReturned ?0:1, 4));
+                    content.write(getByteValue(f.getReturnSlots(), 4));
                     content.write(getByteValue(f.getParamsSum(), 4));
                     content.write(getByteValue(f.getLocalSum(), 4));
 
@@ -47,7 +47,7 @@ public class WriteFile {
             for(FunctionList f: midCode.fnList){
                 if(!f.getName().equals("_start")) {
                     content.write(getByteValue(f.getFnNumber(), 4));
-                    content.write(getByteValue(!f.isReturned ?0:1, 4));
+                    content.write(getByteValue(f.getReturnSlots(), 4));
                     content.write(getByteValue(f.getParamsSum(), 4));
                     content.write(getByteValue(f.getLocalSum(), 4));
 
@@ -56,7 +56,7 @@ public class WriteFile {
                     for (Instruction i : f.getInstructionsList()) {
                         content.write(getByteValue(i.getOptValue(), 1));
                         if (i.hasX())
-                            content.write(getByteValue(i.getX(), (int)i.getY()));
+                            content.write(getByteValue(i.getX(), i.getY()));
                     }
                 }
             }

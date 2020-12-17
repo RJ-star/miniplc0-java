@@ -364,41 +364,6 @@ public final class Analyser {
 
     private void analyseIfStatement(FunctionList list, int level) throws CompileError {//TODO
         expect(TokenType.IF_KW);
-//        ArrayList<Integer> point = new ArrayList<>();//需要跳转的点
-//        ArrayList<Integer> zipper = new ArrayList<>();//跳转点
-//        ArrayList<Integer> end = new ArrayList<>();
-//        analyseAssign();
-//        point.add(instructions.size());
-//        instructions.add(new Instruction(Operation.BR_TRUE,1));//占坑
-//        analyseBlockStatement(list, level);
-//        end.add(instructions.size());
-//        instructions.add(new Instruction(Operation.BR));//占坑
-//        while (check(TokenType.ELSE_KW)) {
-//            next();
-//            if (check(TokenType.IF_KW)) {
-//                next();
-//                zipper.add(instructions.size());
-//                analyseAssign();
-//                point.add(instructions.size());
-//                instructions.add(new Instruction(Operation.BR));//占坑
-//                analyseBlockStatement(list, level);
-//                end.add(instructions.size());
-//                instructions.add(new Instruction(Operation.BR));
-//            } else {
-//                zipper.add(instructions.size());
-//                analyseBlockStatement(list, level);
-//                if (check(TokenType.ELSE_KW)) {
-//                    throw new ExpectedTokenError(List.of(TokenType.IF_KW), next());
-//                }
-//            }
-//        }
-//        int flag = instructions.size();
-//        for (int i=0; i<point.size(); i++) {
-//            instructions.set(point.get(i), new Instruction(Operation.JMP, zipper.get(i)));
-//        }
-//        for (int i=0; i<end.size(); i++) {
-//            instructions.set(end.get(i), new Instruction(Operation.JMP, flag));
-//        }
     }
 
     private void analyseWhileStatement(FunctionList list, int level) throws CompileError {
@@ -417,13 +382,14 @@ public final class Analyser {
 
     private void analyseReturnStatement(FunctionList list, int level) throws CompileError {
         expect(TokenType.RETURN_KW);
+        if (!list.getType().equals("void")) {
+            list.addInstruction(new Instruction(Operation.ARGA, 0, 4));
+        }
         String type="void";
-        if(!check(TokenType.Semicolon)) {
+        if(!check(TokenType.SEMICOLON)) {
             type = "int";
             analyseAssign(list, level);
-        }
-        if (!type.equals(list.getType())) {
-            throw new ExpectedTokenError(List.of(TokenType.Ty), next());
+            list.addInstruction(new Instruction(Operation.STORE_64));
         }
         list.isReturned = true;
         list.addInstruction(new Instruction(Operation.RET));
@@ -464,12 +430,17 @@ public final class Analyser {
         Token return_type = expect(TokenType.Ty);
         list.setType(return_type.getValueString());
         analyseBlockStatement(list, 0);
-        list.addInstruction(new Instruction(Operation.RET));
-        list.setIsReturned("void", temp.getStartPos());
+        if(!list.isReturned()){
+            list.addInstruction(new Instruction(Operation.RET));
+            list.returnFn("void",temp.getStartPos());
+        }
     }
 
     private void analyseParam(FunctionList list) throws CompileError {
-        Token temp = next();
+        Token temp = peek();
+        if (check(TokenType.CONST_KW)) {
+            temp=next();
+        }
         Token token = expect(TokenType.IDENT);
         expect(TokenType.COLON);
         Token return_type = expect(TokenType.Ty);
@@ -690,7 +661,7 @@ public final class Analyser {
                             break;
                         case "putstr":
                             list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
-                            if (check(TokenType.RParen)) {
+                            if (check(TokenType.R_PAREN)) {
                                 throw new AnalyzeError(ErrorCode.ExpectedToken, temp.getStartPos());
                             }
                             Token t=expect(TokenType.Str);
@@ -703,15 +674,14 @@ public final class Analyser {
                             list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
                             break;
                         default:
-                            if (check(TokenType.RParen)) {
+                            if (check(TokenType.R_PAREN)) {
                                 throw new AnalyzeError(ErrorCode.ExpectedToken, temp.getStartPos());
                             }
                             list.addInstruction(new Instruction(Operation.STACKALLOC, 0, 4));
-                            if (temp.getValueString().equals("putint") || temp.getValueString().equals("putchar")) {//TODO
-                            }
+                            analyseAssign(list, level);
                             break;
                     }
-                    expect(TokenType.RParen);
+                    expect(TokenType.R_PAREN);
                     list.addInstruction(new Instruction(Operation.CALLNAME,offSet,4));
                 } else {//TODO修改
                     FunctionList calledFunc = intermediate.getFn(temp.getValueString(), temp.getStartPos());
@@ -722,17 +692,19 @@ public final class Analyser {
                     list.addInstruction(new Instruction(Operation.STACKALLOC, flag, 4));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();
-                    if (check(TokenType.RParen)) {
-                        expect(TokenType.RParen);
+                    if (check(TokenType.R_PAREN)) {
+                        expect(TokenType.R_PAREN);
                     } else {
                         paramType.add("int");
+                        analyseAssign(list, level);
                         while (check(TokenType.COMMA)) {
                             next();
                             paramType.add("int");
+                            analyseAssign(list, level);
                         }
-                        expect(TokenType.RParen);
+                        expect(TokenType.R_PAREN);
                     }
-                    list.checkParams(paramType, temp.getStartPos());
+                    calledFunc.checkParams(paramType, temp.getStartPos());
                     list.addInstruction(new Instruction(Operation.CALL, intermediate.getFnAddress(calledFunc.getName()), 4));
                 }
             } else {

@@ -20,6 +20,7 @@ public class FunctionList {
     }
     public String name;
     public String type;
+    public int returnSlots = 0;
     public boolean isReturned;
     public int paramsSum = 0;
     public int localSum = 0;
@@ -35,6 +36,7 @@ public class FunctionList {
     }
 
     public void setType(String type) {
+
         this.type = type;
     }
 
@@ -110,6 +112,14 @@ public class FunctionList {
         return type;
     }
 
+    public int getReturnSlots() {
+        return returnSlots;
+    }
+
+    public void setReturnSlots(int returnSlots) {
+        this.returnSlots = returnSlots;
+    }
+
     public int getLocalSum() {
         return localSum;
     }
@@ -122,8 +132,21 @@ public class FunctionList {
         return isReturned;
     }
 
+    public void setReturn(String ty){
+        if(!ty.equals("void"))
+            this.returnSlots = 1;
+        this.type = ty;
+    }
+
     public int getParamsSum() {
         return paramsSum;
+    }
+
+    public void returnFn(String ty, Pos curPos) throws AnalyzeError{
+        if(!ty.equals(this.type)){
+            throw new AnalyzeError(ErrorCode.ExpectedToken, curPos);
+        }
+        this.isReturned = true;
     }
 
     public ArrayList<FunctionParams> getParamsList() {
@@ -151,52 +174,21 @@ public class FunctionList {
         return Intermediate.getIntermediate().getFnNumber(this.name);
     }
 
-//    public boolean checkReturnRoutes(){
-//        if(this.getType().equals("void")){
-//            if(!this.instructionsList.get(this.instructionsList.size()-1).getOpt().equals(Operation.RET)){
-//                instructionsList.add(new Instruction(Operation.RET));
-//            }
-//            return true;
-//        }
-//        else {
-//            return dfs(0, new HashSet<Integer>());
-//        }
-//    }
-//
-//    private boolean dfs(int i, HashSet<Integer> routes){
-//        if(i > instructionsList.size()-1){
-//            return false;
-//        }
-//        else if(routes.contains(i)){
-//            return true;
-//        }
-//        else if(instructionsList.get(i).getOpt().equals(Operation.BR_TRUE)){
-//            routes.add(i);
-//            boolean ret = dfs(i+1, routes);
-//            return ret && dfs(i+2, routes);
-//        }
-//        else if(instructionsList.get(i).getOpt().equals(Operation.BR)){
-//            routes.add(i);
-//            return dfs(i+instructionsList.get(i).getIntX()+1, routes);
-//        }
-//        else if(instructionsList.get(i).getOpt().equals(Operation.RET)){
-//            return true;
-//        }
-//        else{
-//            routes.add(i);
-//            return dfs(i+1, routes);
-//        }
-//    }
-
     @Override
-    public String toString() {//TODO
-        return "FunctionList{" +
-                "name='" + name + '\'' +
-                ", type='" + type + '\'' +
-                ", isReturned=" + isReturned +
-                ", paramsSum=" + paramsSum +
-                ", paramsList=" + paramsList +
-                ", instructionsList=" + instructionsList +
-                '}';
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("fn [").append(Intermediate.getIntermediate().getFnNumber(this.name)).
+                append("] ").append(localSum).append(" ").append(paramsSum).append(" -> ").
+                append(returnSlots).append(" {\n");
+
+        int xh=0;
+        for(Instruction i : instructionsList){
+            sb.append(xh+": ");
+            sb.append(i).append("\n");
+            xh++;
+        }
+        sb.append("}\n");
+
+        return sb.toString();
     }
 }
