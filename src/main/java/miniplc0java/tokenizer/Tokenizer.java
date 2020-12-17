@@ -153,7 +153,7 @@ public class Tokenizer {
         Pos flag=it.previousPos();
         StringBuffer x=new StringBuffer("");
         // -- 前进一个字符，并存储这个字符
-        while(Character.isAlphabetic(it.peekChar())||Character.isDigit(it.peekChar())){
+        while(Character.isAlphabetic(it.peekChar())||Character.isDigit(it.peekChar())||it.peekChar()=='_'){
             x.append(it.nextChar());
         }
         //
