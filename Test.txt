@@ -1,27 +1,24 @@
-let i: int = 2;
-
-fn foo() -> int {
-    let i: int = 1;
-    putint(i);
-    putln();
-    return i;
-}
-
-fn bar() -> void {
-    putint(i);
-    putln();
-    i = i + 1;
+fn gcd(a: int, b: int) -> int {
+    if a > b {
+        return gcd(b, a);
+    } else if a == 0 {
+        return b;
+    } else {
+        return gcd(b - a, a);
+    }
 }
 
 fn main() -> void {
-    let i: int = 1;
-    putint(i);
-    putln();
-    putint(foo());
-    putln();
-    bar();
-    bar();
-    bar();
-    putint(foo());
-    putln();
+    let count: int;
+    let a: int;
+    let b: int;
+
+    count = getint();
+    while count > 0 {
+        a = getint();
+        b = getint();
+        putint(gcd(a, b));
+        putln();
+        count = count - 1;
+    }
 }

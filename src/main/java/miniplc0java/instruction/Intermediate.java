@@ -34,7 +34,7 @@ public class Intermediate {
     }
 
     public int getNextGlobalVarOffset(){
-        return gdList.size();
+        return gdList.size()-1;
     }
 
     /**

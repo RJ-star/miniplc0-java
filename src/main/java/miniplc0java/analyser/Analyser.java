@@ -246,6 +246,29 @@ public final class Analyser {
         }
     }
 
+    private void analyseProgram() throws CompileError {
+        // 示例函数，示例如何调用子程序
+        Function list = new Function("_start");
+        while (!check(TokenType.EOF)) {
+            if (check(TokenType.FN_KW)) {
+                analyseFunction();
+            } else {
+                if (check(TokenType.LET_KW)) {
+                    analyseLetStatement(list, 0);
+                } else if (check(TokenType.CONST_KW)) {
+                    analyseConstStatement(list, 0);
+                }
+            }
+        }
+        Intermediate.getIntermediate().addFunction(list);
+        Function temp=intermediate.getFn("main",peek().getStartPos());
+        list.addInstruction(new Instruction(Operation.STACKALLOC, temp.getReturnSlots(), 4));
+        int begin=intermediate.getFnAddress("main");
+        list.addInstruction(new Instruction(Operation.CALL, begin, 4));
+        intermediate.addGlobalSymbol("_start", peek().getStartPos());
+        expect(TokenType.EOF);
+    }
+
     private void analyseStatement(Function list, int level) throws CompileError {
         if (check(TokenType.LET_KW)) {
             analyseLetStatement(list, level);
@@ -277,27 +300,30 @@ public final class Analyser {
         String name=token.getValueString();
         expect(TokenType.COLON);
         Token temp = expect(TokenType.Ty);
-        int offset;
+        if (temp.getValueString().equals("void")) {
+            throw new AnalyzeError(ErrorCode.InvalidAssignment, temp.getStartPos());
+        }
+        int position;
         if (level == 0) {//全局变量
             intermediate.addGlobalVar(name, token.getStartPos());
             intermediate.addGlobalVar(new GlobalSymbol(token.getValueString(), false));
-            offset = getLevelOffset(level);
+            position = getLevelOffset(level);
         } else {
             if (level == 1) {//传进来的参数不能在第一层再次定义
                 list.InParamsList(name, token.getStartPos());
             }
             list.localSum++;
-            offset=list.getLocalSum()-1;
+            position = list.getLocalSum()-1;
         }
-        addSymbol(name, false, false, temp.getValueString(), token.getStartPos(), level, offset);
+        addSymbol(name, false, false, temp.getValueString(), token.getStartPos(), level, position);
         if (check(TokenType.ASSIGN)) {
             next();
             if (level == 0) {
-                offset=Intermediate.getIntermediate().getNextGlobalVarOffset();
-                list.addInstruction(new Instruction(Operation.GLOBA, offset-1, 4));
+                position = Intermediate.getIntermediate().getNextGlobalVarOffset();
+                list.addInstruction(new Instruction(Operation.GLOBA, position, 4));
             } else {
-                offset=list.getNextLocalOffset();
-                list.addInstruction(new Instruction(Operation.LOCA, offset, 4));
+                position = list.getNextLocalOffset();
+                list.addInstruction(new Instruction(Operation.LOCA, position, 4));
             }
             analyseAssign(list, level);
             list.addInstruction(new Instruction(Operation.STORE_64));
@@ -312,27 +338,30 @@ public final class Analyser {
         String name = token.getValueString();
         expect(TokenType.COLON);
         Token temp = expect(TokenType.Ty);
-        int offset;
+        if (temp.getValueString().equals("void")) {
+            throw new AnalyzeError(ErrorCode.InvalidAssignment, temp.getStartPos());
+        }
+        int position;
         if (level == 0) {//全局变量
             intermediate.addGlobalVar(token.getValueString(), token.getStartPos());
             intermediate.addGlobalVar(new GlobalSymbol(token.getValueString(), false));
-            offset = getLevelOffset(level);
+            position = getLevelOffset(level);
         } else {
             if (level == 1) {
                 list.InParamsList(name, token.getStartPos());
             }
             list.localSum++;
-            offset=list.getLocalSum()-1;
+            position = list.getLocalSum()-1;
         }
-        addSymbol(name, false, true, temp.getValueString(), token.getStartPos(), level, offset);
+        addSymbol(name, false, true, temp.getValueString(), token.getStartPos(), level, position);
         if (check(TokenType.ASSIGN)) {
             next();
             if (level == 0) {
-                offset=Intermediate.getIntermediate().getNextGlobalVarOffset();
-                list.addInstruction(new Instruction(Operation.GLOBA, offset-1, 4));
+                position = Intermediate.getIntermediate().getNextGlobalVarOffset();
+                list.addInstruction(new Instruction(Operation.GLOBA, position, 4));
             } else {
-                offset=list.getNextLocalOffset();
-                list.addInstruction(new Instruction(Operation.LOCA, offset, 4));
+                position = list.getNextLocalOffset();
+                list.addInstruction(new Instruction(Operation.LOCA, position, 4));
             }
             analyseAssign(list, level);
             list.addInstruction(new Instruction(Operation.STORE_64));
@@ -355,7 +384,7 @@ public final class Analyser {
         add.add(list.getInstructionsList().size());//需要修改跳转地址的位置
         list.addInstruction(new Instruction(Operation.BR,0,4));
         analyseBlockStatement(list,level);
-        if(check(TokenType.ELSE_KW )){
+        if(check(TokenType.ELSE_KW)){
             next();
             end.add(list.getInstructionsList().size());//跳出if else语句需要修改的跳转地址位置
             list.addInstruction(new Instruction(Operation.BR,0,4));
@@ -443,10 +472,10 @@ public final class Analyser {
     private void analyseFunction() throws CompileError {
         expect(TokenType.FN_KW);
         Token temp = expect(TokenType.IDENT);
-        expect(TokenType.L_PAREN);
         Function list = new Function(temp.getValueString());
         intermediate.addGlobalSymbol(temp.getValueString(), temp.getStartPos());
         intermediate.addFunction(list);
+        expect(TokenType.L_PAREN);
         while (!check(TokenType.R_PAREN)){
             analyseParam(list);
             if(check(TokenType.COMMA)){
@@ -481,28 +510,7 @@ public final class Analyser {
      * <程序> ::= 'begin'<主过程>'end'
      */
 
-    private void analyseProgram() throws CompileError {
-        // 示例函数，示例如何调用子程序
-        Function list = new Function("_start");
-        while (!check(TokenType.EOF)) {
-            if (check(TokenType.FN_KW)) {
-                analyseFunction();
-            } else {
-                if (check(TokenType.LET_KW)) {
-                    analyseLetStatement(list, 0);
-                } else if (check(TokenType.CONST_KW)) {
-                    analyseConstStatement(list, 0);
-                }
-            }
-        }
-        Intermediate.getIntermediate().addFunction(list);
-        Function temp=intermediate.getFn("main",peek().getStartPos());
-        list.addInstruction(new Instruction(Operation.STACKALLOC, temp.getReturnSlots(), 4));
-        int begin=intermediate.getFnAddress("main");
-        list.addInstruction(new Instruction(Operation.CALL, begin, 4));
-        intermediate.addGlobalSymbol("_start", peek().getStartPos());
-        expect(TokenType.EOF);
-    }
+
 
     private String analyseAssign(Function list, int level) throws CompileError {
         Token temp = peek();
