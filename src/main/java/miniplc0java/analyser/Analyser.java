@@ -15,7 +15,7 @@ import java.util.*;
 public final class Analyser {
 
     Tokenizer tokenizer;
-    ArrayList<Instruction> instructions;
+//    ArrayList<Instruction> instructions;
     ArrayList<SymbolEntry> localTable = new ArrayList<>();
     Intermediate intermediate = Intermediate.getIntermediate();
 
@@ -122,15 +122,6 @@ public final class Analyser {
         return this.nextOffset++;
     }
 
-//    /**
-//     * 添加一个符号
-//     *
-//     * @param name          名字
-//     * @param isInitialized 是否已赋值
-//     * @param isConstant    是否是常量
-//     * @param curPos        当前 token 的位置（报错用）
-//     * @throws AnalyzeError 如果重复定义了则抛异常
-//     */
     public SymbolEntry checkLocalSymbol(String name, int level) {
         for(int i=localTable.size()-1; i>=0; i--){
             if(localTable.get(i).getName().equals(name) && localTable.get(i).getLevel()<=level && localTable.get(i).getLevel()!=0){
@@ -166,15 +157,6 @@ public final class Analyser {
             this.localTable.add(new SymbolEntry(name, type, isConstant, isInitialized, offSet, level));
         }
     }
-
-//    private void addFunc(String name,Pos curPos, String n1, String type, ArrayList<Token> list, int begin, int end) throws AnalyzeError {
-//        if (this.functionTable.get(name) != null) {
-//            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
-//        }
-//        else {
-//            this.functionTable.put(name, new Function(name, type, list, begin, end));
-//        }
-//    }
 
     private void pop(int level) {
         localTable.removeIf(s->s.getLevel()==level);
@@ -240,7 +222,7 @@ public final class Analyser {
      * @return 是否为常量
      * @throws AnalyzeError
      */
-    private boolean isConstant(FunctionList list, String name, int level, Pos curPos) throws AnalyzeError {//TODO
+    private boolean isConstant(Function list, String name, int level, Pos curPos) throws AnalyzeError {//TODO
         SymbolEntry sy;
         int offset;
         if ((sy=checkLocalSymbol(name, level))!=null) {//查找局部变量
@@ -252,7 +234,7 @@ public final class Analyser {
         }
     }
 
-    private boolean isInitialized(FunctionList list, String name, int level, Pos curPos) throws AnalyzeError {
+    private boolean isInitialized(Function list, String name, int level, Pos curPos) throws AnalyzeError {
         SymbolEntry sy;
         int offset;
         if ((sy=checkLocalSymbol(name, level))!=null) {//查找局部变量
@@ -264,7 +246,7 @@ public final class Analyser {
         }
     }
 
-    private void analyseStatement(FunctionList list, int level) throws CompileError {
+    private void analyseStatement(Function list, int level) throws CompileError {
         if (check(TokenType.LET_KW)) {
             analyseLetStatement(list, level);
         } else if (check(TokenType.IF_KW)) {
@@ -284,12 +266,12 @@ public final class Analyser {
         }
     }
 
-    private void analyseAssignStatement(FunctionList list, int level) throws CompileError {
+    private void analyseAssignStatement(Function list, int level) throws CompileError {
         analyseAssign(list, level);
         expect(TokenType.SEMICOLON);
     }
 
-    private void analyseLetStatement(FunctionList list, int level) throws CompileError {
+    private void analyseLetStatement(Function list, int level) throws CompileError {
         expect(TokenType.LET_KW);
         Token token = expect(TokenType.IDENT);
         String name=token.getValueString();
@@ -324,7 +306,7 @@ public final class Analyser {
         expect(TokenType.SEMICOLON);
     }
 
-    private void analyseConstStatement(FunctionList list, int level) throws CompileError {
+    private void analyseConstStatement(Function list, int level) throws CompileError {
         expect(TokenType.CONST_KW);
         Token token = expect(TokenType.IDENT);
         String name = token.getValueString();
@@ -361,7 +343,7 @@ public final class Analyser {
         expect(TokenType.SEMICOLON);
     }
 
-    private void analyseIfStatement(FunctionList list, int level) throws CompileError {//TODO
+    private void analyseIfStatement(Function list, int level) throws CompileError {//TODO
         expect(TokenType.IF_KW);
         analyseAssign(list, level);
         ArrayList<Integer> add=new ArrayList<Integer>();
@@ -412,7 +394,7 @@ public final class Analyser {
         }
     }
 
-    private void analyseWhileStatement(FunctionList list, int level) throws CompileError {
+    private void analyseWhileStatement(Function list, int level) throws CompileError {
         expect(TokenType.WHILE_KW);
         int begin = list.getInstructionsList().size();
         list.addInstruction(new Instruction(Operation.BR, 0, 4));
@@ -426,7 +408,7 @@ public final class Analyser {
         list.getInstructionsList().set(add, new Instruction(Operation.BR, end-add-1, 4));
     }
 
-    private void analyseReturnStatement(FunctionList list, int level) throws CompileError {
+    private void analyseReturnStatement(Function list, int level) throws CompileError {
         expect(TokenType.RETURN_KW);
         if (!list.getType().equals("void")) {
             list.addInstruction(new Instruction(Operation.ARGA, 0, 4));
@@ -444,7 +426,7 @@ public final class Analyser {
         expect(TokenType.SEMICOLON);
     }
 
-    private void analyseBlockStatement(FunctionList list, int level) throws CompileError {
+    private void analyseBlockStatement(Function list, int level) throws CompileError {
         level++;
         expect(TokenType.L_BRACE);
         while (!check(TokenType.R_BRACE)) {
@@ -454,7 +436,7 @@ public final class Analyser {
         expect(TokenType.R_BRACE);
     }
 
-    private void analyseEmptyStatement(FunctionList list, int level) throws CompileError {
+    private void analyseEmptyStatement(Function list, int level) throws CompileError {
         expect(TokenType.SEMICOLON);
     }
 
@@ -462,7 +444,7 @@ public final class Analyser {
         expect(TokenType.FN_KW);
         Token temp = expect(TokenType.IDENT);
         expect(TokenType.L_PAREN);
-        FunctionList list = new FunctionList(temp.getValueString());
+        Function list = new Function(temp.getValueString());
         intermediate.addGlobalSymbol(temp.getValueString(), temp.getStartPos());
         intermediate.addFunction(list);
         while (!check(TokenType.R_PAREN)){
@@ -484,7 +466,7 @@ public final class Analyser {
         }
     }
 
-    private void analyseParam(FunctionList list) throws CompileError {
+    private void analyseParam(Function list) throws CompileError {
         Token temp = peek();
         if (check(TokenType.CONST_KW)) {
             temp=next();
@@ -505,7 +487,7 @@ public final class Analyser {
 
     private void analyseProgram() throws CompileError {
         // 示例函数，示例如何调用子程序
-        FunctionList list = new FunctionList("_start");
+        Function list = new Function("_start");
         while (!check(TokenType.EOF)) {
             if (check(TokenType.FN_KW)) {
                 analyseFunction();
@@ -518,7 +500,7 @@ public final class Analyser {
             }
         }
         Intermediate.getIntermediate().addFunction(list);
-        FunctionList temp=intermediate.getFn("main",peek().getStartPos());
+        Function temp=intermediate.getFn("main",peek().getStartPos());
         list.addInstruction(new Instruction(Operation.STACKALLOC, temp.getReturnSlots(), 4));
         int begin=intermediate.getFnAddress("main");
         list.addInstruction(new Instruction(Operation.CALL, begin, 4));
@@ -526,7 +508,7 @@ public final class Analyser {
         expect(TokenType.EOF);
     }
 
-    private String analyseAssign(FunctionList list, int level) throws CompileError {
+    private String analyseAssign(Function list, int level) throws CompileError {
         Token temp = peek();
         String type=analyseOperator(list, level);
         String type_temp;
@@ -552,7 +534,7 @@ public final class Analyser {
     }
 
 
-    private String analyseOperator(FunctionList list, int level) throws CompileError {//运算符表达式
+    private String analyseOperator(Function list, int level) throws CompileError {//运算符表达式
         String type=analyseExpression(list, level);
         if (check(TokenType.EQ) || check(TokenType.NEQ) || check(TokenType.LT) || check(TokenType.GT) || check(TokenType.LE) || check(TokenType.GE)){
             Token temp = next();
@@ -579,7 +561,7 @@ public final class Analyser {
         return type;
     }
 
-    private String analyseExpression(FunctionList list, int level) throws CompileError {//表达式
+    private String analyseExpression(Function list, int level) throws CompileError {//表达式
         String type=analyseItem(list, level);
         String type_temp;
         while (check(TokenType.PLUS) || check(TokenType.MINUS)) {
@@ -602,7 +584,7 @@ public final class Analyser {
         return type;
     }
 
-    private String analyseItem(FunctionList list, int level) throws CompileError {//项
+    private String analyseItem(Function list, int level) throws CompileError {//项
         String type=analyseFactor(list, level);
         String type_temp;
         while (check(TokenType.MUL) || check(TokenType.DIV)) {
@@ -625,7 +607,7 @@ public final class Analyser {
         return type;
     }
 
-    private String analyseFactor(FunctionList list, int level) throws CompileError {//因子
+    private String analyseFactor(Function list, int level) throws CompileError {//因子
         String type="void";
         boolean negate = false;
         while (check(TokenType.MINUS)) {
@@ -641,7 +623,7 @@ public final class Analyser {
             // 调用相应的处理函数
             Token temp = next();
             if(check(TokenType.L_PAREN)){
-                if (FunctionList.standardFunction.get(temp.getValueString()) != null) {
+                if (Function.standardFunction.get(temp.getValueString()) != null) {
                     next();
                     int offSet = intermediate.insertLibFunctionBefore(list.getName(), temp.getValueString());
                     switch (temp.getValueString()){
@@ -682,7 +664,7 @@ public final class Analyser {
                     expect(TokenType.R_PAREN);
                     list.addInstruction(new Instruction(Operation.CALLNAME,offSet,4));
                 } else {//TODO修改
-                    FunctionList calledFunc = intermediate.getFn(temp.getValueString(), temp.getStartPos());
+                    Function calledFunc = intermediate.getFn(temp.getValueString(), temp.getStartPos());
                     int flag = 0;
                     if (calledFunc.isReturned) {
                         flag = 1;

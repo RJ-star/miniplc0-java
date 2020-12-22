@@ -6,14 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class FunctionList {
+public class Function {
     public static HashMap<String, String> standardFunction = new HashMap<>();
     static {
         standardFunction.put("getint","int");
-        standardFunction.put("getdpuble","double");
+//        standardFunction.put("getdouble","double");
         standardFunction.put("getchar","char");
         standardFunction.put("putint","void");
-        standardFunction.put("putdouble","void");
+//        standardFunction.put("putdouble","void");
         standardFunction.put("putchar","void");
         standardFunction.put("putstr","void");
         standardFunction.put("putln","void");
@@ -28,7 +28,7 @@ public class FunctionList {
     public ArrayList<Instruction> instructionsList = new ArrayList<>();
 
     public static void setStandardFunction(HashMap<String, String> standardFunction) {
-        FunctionList.standardFunction = standardFunction;
+        Function.standardFunction = standardFunction;
     }
 
     public void setName(String name) {
@@ -56,7 +56,7 @@ public class FunctionList {
         this.instructionsList = instructionsList;
     }
 
-    public FunctionList(String name) {
+    public Function(String name) {
         this.name = name;
     }
 
@@ -176,19 +176,30 @@ public class FunctionList {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("fn [").append(Intermediate.getIntermediate().getFnNumber(this.name)).
-                append("] ").append(localSum).append(" ").append(paramsSum).append(" -> ").
-                append(returnSlots).append(" {\n");
-
-        int xh=0;
-        for(Instruction i : instructionsList){
-            sb.append(xh+": ");
-            sb.append(i).append("\n");
-            xh++;
+        StringBuilder s = new StringBuilder();
+//        s.append("fn [").append(Intermediate.getIntermediate().getFnNumber(this.name)).append("] ").append(localSum).append(" ").append(paramsSum).append(" -> ").append(returnSlots).append(" {\n");
+        s.append("fn [");
+        s.append(Intermediate.getIntermediate().getFnNumber(this.name));
+        s.append("] ");
+        s.append(localSum);
+        s.append(" ");
+        s.append(paramsSum);
+        s.append(" -> ");
+        s.append(returnSlots);
+        s.append(" {\n");
+//        int xh=0;
+//        for(Instruction i : instructionsList){
+//            s.append(xh+": ");
+//            s.append(i).append("\n");
+//            xh++;
+//        }
+        for (int i=0; i<instructionsList.size(); i++) {
+            s.append(i);
+            s.append(": ");
+            s.append(instructionsList.get(i));
+            s.append("\n");
         }
-        sb.append("}\n");
-
-        return sb.toString();
+        s.append("}\n");
+        return s.toString();
     }
 }

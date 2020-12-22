@@ -11,7 +11,7 @@ public class Intermediate {
     public int version = 0x00000001;
     public String startFn = "_start";
     public ArrayList<GlobalSymbol> gdList = new ArrayList<>();
-    public ArrayList<FunctionList> fnList = new ArrayList<>();
+    public ArrayList<Function> fnList = new ArrayList<>();
 
 
     // 函数名和全局变量
@@ -96,7 +96,7 @@ public class Intermediate {
      * 添加一个函数块
      * @param f 函数块
      */
-    public void addFunction(FunctionList f){
+    public void addFunction(Function f){
         fnList.add(f);
     }
 
@@ -135,7 +135,7 @@ public class Intermediate {
      */
     public int getFnAddress(String fnName) {
         int i=1;
-        for(FunctionList f:fnList){
+        for(Function f:fnList){
             if(f.getName().equals(fnName)){
                 return i;
             }
@@ -162,8 +162,8 @@ public class Intermediate {
      * @return
      * @throws AnalyzeError
      */
-    public FunctionList getFn(String fnName, Pos curPos) throws AnalyzeError{
-        for(FunctionList f:fnList){
+    public Function getFn(String fnName, Pos curPos) throws AnalyzeError{
+        for(Function f:fnList){
             if(f.getName().equals(fnName)){
                 return f;
             }
@@ -205,12 +205,12 @@ public class Intermediate {
 */
 
         sb.append("\n");
-        for(FunctionList f : fnList){
+        for(Function f : fnList){
             if(f.getName().equals("_start")){
                 sb.append(f).append('\n');
             }
         }
-        for(FunctionList f : fnList){
+        for(Function f : fnList){
             if(!f.getName().equals("_start") ){
                 sb.append(f).append('\n');
             }
