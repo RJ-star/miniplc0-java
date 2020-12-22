@@ -48,7 +48,10 @@ public class Tokenizer {
         Pos flag=it.previousPos();
         StringBuffer str=new StringBuffer("");
         it.nextChar();
-        while(it.peekChar()!='"'){
+        while (it.peekChar()!='"') {
+            if (it.isEOF()) {
+                throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+            }
             if (it.peekChar() == '\\') {//转义字符
                 char c;
                 it.nextChar();
@@ -72,12 +75,8 @@ public class Tokenizer {
             } else {
                 str.append(it.nextChar());
             }
-
         }
         it.nextChar();
-        if (it.peekChar()!=')') {
-            throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
-        }
         String s = new String(str);
         return new Token(TokenType.Str,s,flag,it.currentPos());
     }
