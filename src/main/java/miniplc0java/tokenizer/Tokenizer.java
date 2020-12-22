@@ -227,7 +227,6 @@ public class Tokenizer {
                 it.nextChar();
                 return new Token(TokenType.DIV, '/', it.previousPos(), it.currentPos());
             }
-
         }
         else if (it.peekChar() == '=') {
             it.nextChar();
