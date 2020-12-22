@@ -10,10 +10,8 @@ public class Function {
     public static HashMap<String, String> standardFunction = new HashMap<>();
     static {
         standardFunction.put("getint","int");
-//        standardFunction.put("getdouble","double");
         standardFunction.put("getchar","char");
         standardFunction.put("putint","void");
-//        standardFunction.put("putdouble","void");
         standardFunction.put("putchar","void");
         standardFunction.put("putstr","void");
         standardFunction.put("putln","void");

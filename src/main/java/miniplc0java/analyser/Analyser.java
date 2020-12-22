@@ -16,14 +16,14 @@ public final class Analyser {
 
     Tokenizer tokenizer;
 //    ArrayList<Instruction> instructions;
-    ArrayList<SymbolEntry> localTable = new ArrayList<>();
+    ArrayList<Symbol> localTable = new ArrayList<>();
     Intermediate intermediate = Intermediate.getIntermediate();
 
     /** 当前偷看的 token */
     Token peekedToken = null;
 
     /** 符号表 */
-    HashMap<String, SymbolEntry> symbolTable = new HashMap<>();
+    HashMap<String, Symbol> symbolTable = new HashMap<>();
 
 //    HashMap<String, Function> functionTable = new HashMap<>();
 
@@ -122,8 +122,8 @@ public final class Analyser {
         return this.nextOffset++;
     }
 
-    public SymbolEntry checkLocalSymbol(String name, int level) {
-        for(int i=localTable.size()-1; i>=0; i--){
+    public Symbol checkLocalSymbol(String name, int level) {
+        for(int i=0; i<localTable.size(); i++){
             if(localTable.get(i).getName().equals(name) && localTable.get(i).getLevel()<=level && localTable.get(i).getLevel()!=0){
                 return localTable.get(i);
             }
@@ -131,7 +131,7 @@ public final class Analyser {
         return null;
     }
 
-    public SymbolEntry getSymbol(String name, int level) {
+    public Symbol getSymbol(String name, int level) {
         for (int i=0; i<localTable.size(); i++) {
             if (localTable.get(i).name.equals(name) && localTable.get(i).getLevel()==level) {
                 return localTable.get(i);
@@ -140,8 +140,8 @@ public final class Analyser {
         return null;
     }
 
-    public SymbolEntry useSymbol(String name, int level, Pos curPos) throws AnalyzeError {
-        for(int i=localTable.size()-1; i>=0; i--){
+    public Symbol useSymbol(String name, int level, Pos curPos) throws AnalyzeError {
+        for(int i=0; i<localTable.size()-1; i++){
             if(localTable.get(i).getName().equals(name) && localTable.get(i).getLevel() <= level){
                 return localTable.get(i);
             }
@@ -154,7 +154,7 @@ public final class Analyser {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         }
         else {
-            this.localTable.add(new SymbolEntry(name, type, isConstant, isInitialized, offSet, level));
+            this.localTable.add(new Symbol(name, type, isConstant, isInitialized, offSet, level));
         }
     }
 
@@ -198,14 +198,14 @@ public final class Analyser {
     private int getLevelOffset(int level) {
         int ans=0;
         if (level == 0) {
-            for (SymbolEntry s: localTable) {
+            for (Symbol s: localTable) {
                 if (s.getLevel() == 0) {
                     ans++;
                 }
             }
             return ans;
         } else {
-            for (SymbolEntry s: localTable) {
+            for (Symbol s: localTable) {
                 if (s.getLevel() <= level && s.getLevel()!=0) {
                     ans++;
                 }
@@ -223,7 +223,7 @@ public final class Analyser {
      * @throws AnalyzeError
      */
     private boolean isConstant(Function list, String name, int level, Pos curPos) throws AnalyzeError {//TODO
-        SymbolEntry sy;
+        Symbol sy;
         int offset;
         if ((sy=checkLocalSymbol(name, level))!=null) {//查找局部变量
             return sy.isConstant();
@@ -235,7 +235,7 @@ public final class Analyser {
     }
 
     private boolean isInitialized(Function list, String name, int level, Pos curPos) throws AnalyzeError {
-        SymbolEntry sy;
+        Symbol sy;
         int offset;
         if ((sy=checkLocalSymbol(name, level))!=null) {//查找局部变量
             return sy.isInitialized;
