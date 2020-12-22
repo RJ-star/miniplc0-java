@@ -75,6 +75,9 @@ public class Tokenizer {
 
         }
         it.nextChar();
+        if (it.peekChar()!=')') {
+            throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
+        }
         String s = new String(str);
         return new Token(TokenType.Str,s,flag,it.currentPos());
     }
