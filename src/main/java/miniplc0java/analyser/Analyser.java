@@ -123,7 +123,7 @@ public final class Analyser {
     }
 
     public Symbol checkLocalSymbol(String name, int level) {
-        for(int i=0; i<localTable.size(); i++){
+        for (int i=localTable.size()-1; i>=0; i--) {
             if(localTable.get(i).getName().equals(name) && localTable.get(i).getLevel()<=level && localTable.get(i).getLevel()!=0){
                 return localTable.get(i);
             }
@@ -141,7 +141,7 @@ public final class Analyser {
     }
 
     public Symbol useSymbol(String name, int level, Pos curPos) throws AnalyzeError {
-        for(int i=0; i<localTable.size()-1; i++){
+        for(int i=localTable.size()-1; i>=0; i--){
             if(localTable.get(i).getName().equals(name) && localTable.get(i).getLevel() <= level){
                 return localTable.get(i);
             }
@@ -396,16 +396,16 @@ public final class Analyser {
 
     private void analyseWhileStatement(Function list, int level) throws CompileError {
         expect(TokenType.WHILE_KW);
-        int begin = list.getInstructionsList().size();
+        int point1 = list.getInstructionsList().size();//跳转点1
         list.addInstruction(new Instruction(Operation.BR, 0, 4));
         analyseAssign(list, level);
         list.addInstruction(new Instruction(Operation.BR_TRUE, 1, 4));
-        int add=list.getInstructionsList().size();
+        int point2 = list.getInstructionsList().size();
         list.addInstruction(new Instruction(Operation.BR, 0 ,4));
         analyseBlockStatement(list, level);
-        list.addInstruction(new Instruction(Operation.BR, begin-list.getInstructionsList().size(), 4));
-        int end=list.getInstructionsList().size();
-        list.getInstructionsList().set(add, new Instruction(Operation.BR, end-add-1, 4));
+        list.addInstruction(new Instruction(Operation.BR, point1-list.getInstructionsList().size(), 4));
+        int point3 = list.getInstructionsList().size();
+        list.getInstructionsList().set(point2, new Instruction(Operation.BR, point3-point2-1, 4));
     }
 
     private void analyseReturnStatement(Function list, int level) throws CompileError {
@@ -474,11 +474,7 @@ public final class Analyser {
         Token token = expect(TokenType.IDENT);
         expect(TokenType.COLON);
         Token return_type = expect(TokenType.Ty);
-        if (temp.getValueString().equals("const")) {
-            list.addParam(token.getValueString(), return_type.getValueString(), true, token.getStartPos());
-        } else {
-            list.addParam(token.getValueString(), return_type.getValueString(), false, token.getStartPos());
-        }
+        list.addParam(token.getValueString(), return_type.getValueString(), temp.getValueString().equals("const"), token.getStartPos());
     }
 
     /**
