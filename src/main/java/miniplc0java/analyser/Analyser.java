@@ -375,6 +375,8 @@ public final class Analyser {
     private void analyseIfStatement(Function list, int level) throws CompileError {//TODO
         expect(TokenType.IF_KW);
         analyseAssign(list, level);
+//        list.addInstruction(new Instruction(Operation.BR_TRUE, 1, 4));
+//        list.addInstruction();
         ArrayList<Integer> add=new ArrayList<Integer>();
         ArrayList<Integer> nextAdd=new ArrayList<Integer>();
         ArrayList<Integer> end=new ArrayList<Integer>();
